@@ -2,7 +2,9 @@
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
-	// import './styles.css';
+	import { page } from '$app/stores';
+	import '../app.css';
+	import { redirect } from '@sveltejs/kit';
 
 	onMount(() => {
 		const {
@@ -15,8 +17,18 @@
 			subscription.unsubscribe();
 		};
 	});
+
+	if (!$page.data.session && $page.url.pathname !== '/login') {
+		throw redirect(301, '/login');
+	}
 </script>
 
-<div class="container" style="padding: 50px 0 100px 0">
+<div class="bg-gray-200 dark:bg-gray-800 min-h-[100vh]">
 	<slot />
 </div>
+
+<style lang="postcss">
+	:global(html) {
+		background-color: theme(colors.gray.200);
+	}
+</style>
