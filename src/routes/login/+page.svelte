@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Button from '$lib/Button.svelte';
 	import { supabase } from '$lib/supabaseClient';
 
 	let loading = false;
@@ -18,22 +19,34 @@
 			loading = false;
 		}
 	};
+
+	const loginWithGithub = async () => {
+		try {
+			loading = true;
+			const { error } = await supabase.auth.signInWithOAuth({
+				provider: 'github',
+				options: { redirectTo: 'http://localhost:5173/account' }
+			});
+			if (error) throw error;
+		} catch (error) {
+			if (error instanceof Error) {
+				alert(error.message);
+			}
+		} finally {
+			loading = false;
+		}
+	};
 </script>
 
-<form class="row flex-center flex" on:submit|preventDefault={handleLogin}>
-	<div class="col-6 form-widget">
-		<h1 class="header">Supabase + SvelteKit</h1>
-		<p class="description">Sign in via magic link with your email below</p>
-		<div>
-			<input class="inputField" type="email" placeholder="Your email" bind:value={email} />
-		</div>
-		<div>
-			<input
-				type="submit"
-				class="button block"
-				value={loading ? 'Loading' : 'Send magic link'}
-				disabled={loading}
-			/>
-		</div>
-	</div>
-</form>
+<div class="max-w-md m-auto h-screen p-4 flex items-center">
+	<form
+		class="bg-gray-50 dark:bg-slate-700 px-6 py-12 rounded shadow-xl w-full"
+		on:submit|preventDefault={loginWithGithub}
+	>
+		<h1 class="text-4xl uppercase font-bold text-slate-700 dark:text-white/90 text-center">
+			Factorio Logic
+		</h1>
+		<div class="w-full h-[1px] bg-slate-300/50 my-6" />
+		<Button>Login with Github</Button>
+	</form>
+</div>
