@@ -14,6 +14,14 @@ declare global {
 		}
 		interface PageData {
 			session: import('@supabase/supabase-js').Session | null;
+			profile: {
+				id: string;
+				username?: string;
+				update_at?: string;
+				full_name?: string;
+				avatar_url?: string;
+				website?: string;
+			} | null;
 		}
 		// interface Platform {}
 	}

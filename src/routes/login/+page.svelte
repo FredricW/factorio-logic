@@ -1,5 +1,8 @@
 <script lang="ts">
-	import Button from '$lib/Button.svelte';
+	import Button from '$lib/components/Button.svelte';
+	import Card from '$lib/components/Card.svelte';
+	import GithubIcon from '$lib/assets/icon-github.svg';
+	import GithubIconWhite from '$lib/assets/icon-github-white.svg';
 	import { supabase } from '$lib/supabaseClient';
 
 	let loading = false;
@@ -39,14 +42,17 @@
 </script>
 
 <div class="max-w-md m-auto h-screen p-4 flex items-center">
-	<form
-		class="bg-gray-50 dark:bg-slate-700 px-6 py-12 rounded shadow-xl w-full"
-		on:submit|preventDefault={loginWithGithub}
-	>
-		<h1 class="text-4xl uppercase font-bold text-slate-700 dark:text-white/90 text-center">
-			Factorio Logic
-		</h1>
-		<div class="w-full h-[1px] bg-slate-300/50 my-6" />
-		<Button>Login with Github</Button>
-	</form>
+	<Card>
+		<div class="card-body">
+			<form on:submit|preventDefault={loginWithGithub}>
+				<div class="prose">
+					<h1 class="text-center">Factorio Logic</h1>
+				</div>
+				<div class="divider" />
+				<Button className="btn-block gap-3"
+					><img class="h-5 w-5" src={GithubIconWhite} alt="Github icon" />Login with Github</Button
+				>
+			</form>
+		</div>
+	</Card>
 </div>

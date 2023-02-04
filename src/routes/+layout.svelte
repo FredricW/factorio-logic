@@ -3,6 +3,10 @@
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
 	import '../app.css';
+	import Navbar from '$lib/components/Navbar.svelte';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 
 	onMount(() => {
 		const {
@@ -17,7 +21,10 @@
 	});
 </script>
 
-<div class="bg-gray-200 dark:bg-gray-800 min-h-[100vh] dark:text-white">
+<div class="bg-base-200 min-h-[100vh]">
+	{#if data.session}
+		<Navbar {data} />
+	{/if}
 	<slot />
 </div>
 
