@@ -17,13 +17,13 @@
 </script>
 
 <div class="max-w-xl m-auto py-12">
-	<div class="prose">
+	<div class="prose mb-4">
 		<h1>Account</h1>
 	</div>
 	{#if data.session}
-		<div class="mt-4">
-			<div class="mt-4">
-				<p>Email</p>
+		<div class="stats shadow my-4">
+			<div class="stat">
+				<div class="stat-title">Email</div>
 				<p>{data.session.user.email}</p>
 			</div>
 		</div>
