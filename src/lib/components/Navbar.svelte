@@ -24,7 +24,7 @@
 	<div class="navbar bg-base-100 rounded-box shadow-xl">
 		<div class="flex-1">
 			<a href="/" class="btn btn-ghost normal-case text-xl">
-				<img class="h-8 w-8 dark:visible hidden" src={LogoWhite} alt="Factorio Logic logo" />
+				<img class="h-8 w-8 dark:block hidden" src={LogoWhite} alt="Factorio Logic logo" />
 				<img class="h-8 w-8 dark:hidden" src={Logo} alt="Factorio Logic logo" />
 			</a>
 		</div>
