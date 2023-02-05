@@ -16,7 +16,7 @@
 	};
 </script>
 
-<div class="max-w-xl m-auto py-12">
+<div class="max-w-xl m-auto py-12 px-4">
 	<div class="prose mb-4">
 		<h1>Account</h1>
 	</div>
