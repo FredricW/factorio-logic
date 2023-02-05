@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { supabase } from '$lib/supabaseClient';
 	import type { PageData } from '../../routes/$types';
+	import LogoWhite from '$lib/assets/icon-ic-100-outline-white.png';
+	import Logo from '$lib/assets/icon-ic-100-outline.png';
 
 	export let data: PageData;
 
@@ -21,7 +23,10 @@
 <div class="p-4">
 	<div class="navbar bg-base-100 rounded-box shadow-xl">
 		<div class="flex-1">
-			<a href="/" class="btn btn-ghost normal-case text-xl">Factorio Logic</a>
+			<a href="/" class="btn btn-ghost normal-case text-xl">
+				<img class="h-8 w-8 dark:visible hidden" src={LogoWhite} alt="Factorio Logic logo" />
+				<img class="h-8 w-8 dark:hidden" src={Logo} alt="Factorio Logic logo" />
+			</a>
 		</div>
 		<div class="flex-none">
 			<div class="dropdown dropdown-end">
