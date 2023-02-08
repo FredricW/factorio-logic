@@ -23,9 +23,15 @@
 			{#each data.blueprints as blueprint}
 				<div class="max-w-[300px] flex-grow">
 					<Card>
-						<figure class="my-0">
-							<img class="w-full h-32" src="https://picsum.photos/300/200" alt="Blueprint cover" />
-						</figure>
+						<a href="/blueprints/{blueprint.id}">
+							<figure class="my-0 rounded-t-2xl">
+								<img
+									class="w-full h-32"
+									src="https://picsum.photos/300/200"
+									alt="Blueprint cover"
+								/>
+							</figure>
+						</a>
 						<div class="card-body">
 							<h2 class="card-title">
 								{blueprint.name}
