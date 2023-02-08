@@ -9,6 +9,38 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      blueprints: {
+        Row: {
+          author: string
+          collaborators: string[] | null
+          created_at: string
+          data: Json
+          description: string | null
+          id: string
+          is_public: boolean
+          name: string
+        }
+        Insert: {
+          author: string
+          collaborators?: string[] | null
+          created_at?: string
+          data: Json
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          name: string
+        }
+        Update: {
+          author?: string
+          collaborators?: string[] | null
+          created_at?: string
+          data?: Json
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          name?: string
+        }
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -35,29 +67,6 @@ export interface Database {
           website?: string | null
         }
       }
-      projects: {
-        Row: {
-          collaborators: string[] | null
-          created_at: string | null
-          id: string
-          is_public: boolean
-          owner: string
-        }
-        Insert: {
-          collaborators?: string[] | null
-          created_at?: string | null
-          id?: string
-          is_public?: boolean
-          owner: string
-        }
-        Update: {
-          collaborators?: string[] | null
-          created_at?: string | null
-          id?: string
-          is_public?: boolean
-          owner?: string
-        }
-      }
     }
     Views: {
       [_ in never]: never
@@ -66,6 +75,9 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
       [_ in never]: never
     }
   }

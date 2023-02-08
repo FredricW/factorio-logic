@@ -43,6 +43,9 @@
 					class="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
 				>
 					<li>
+						<a href="/dashboard" class="justify-between">Dashboard</a>
+					</li>
+					<li>
 						<a href="/account" class="justify-between">Account</a>
 					</li>
 					<!-- svelte-ignore a11y-invalid-attribute -->
