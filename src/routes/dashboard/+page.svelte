@@ -14,14 +14,14 @@
 	};
 </script>
 
-<div class="max-w-4xl m-auto pt-8">
+<div class="max-w-4xl m-auto py-8 px-4">
 	<div class="prose mb-8">
 		<h1>Dashboard</h1>
 	</div>
 	{#if data.blueprints && data.blueprints.length > 0}
 		<div class="flex gap-8 flex-wrap">
 			{#each data.blueprints as blueprint}
-				<div class="max-w-[300px] flex-grow">
+				<div class="max-w-[400px] min-w-[250px] flex-1">
 					<Card>
 						<a href="/blueprints/{blueprint.id}">
 							<figure class="my-0 rounded-t-2xl">
