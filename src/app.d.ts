@@ -14,8 +14,7 @@ declare global {
 			sb: TypedSupabaseClient;
 		}
 		interface PageData {
-			session: import('@supabase/supabase-js').Session | null;
-			profile: Database['public']['Tables']['profiles']['Row'] | null;
+			session: Session | null;
 		}
 		// interface Platform {}
 		interface Supabase {
