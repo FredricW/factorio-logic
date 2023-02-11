@@ -1,11 +1,76 @@
 <script lang="ts">
+	import Grid from '$lib/components/Grid.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 </script>
 
-<div class="max-w-4xl p-4">
-	<div class="prose">
-		<h1>{data.blueprint?.name}</h1>
+<div class="max-w-screen-2xl m-auto">
+	<div class="flex justify-between md:px-4">
+		<div>
+			<div class="text-sm breadcrumbs">
+				<ul>
+					<li><a href="/dashboard">Dashboard</a></li>
+					<li>Blueprint</li>
+				</ul>
+			</div>
+			<div class="prose">
+				<h1>{data.blueprint?.name}</h1>
+			</div>
+		</div>
+		<div class="py-4">
+			<button class="btn">Invite</button>
+			<button class="btn btn-primary">Publish</button>
+		</div>
+	</div>
+	<div class="flex absolute h-screen top-0">
+		<div class="flex items-center">
+			<div class="bg-base-100 rounded-r min-w-[260px]">
+				<div class="p-4">
+					<h3 class="text-xl font-bold">Components</h3>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="flex items-center justify-center h-screen">
+		<Grid
+			items={[
+				{
+					id: '1',
+					position: {
+						x: -2,
+						y: 0
+					},
+					size: {
+						width: 1,
+						height: 1
+					},
+					data: {
+						name: 'Button',
+						description: 'A button component'
+					}
+				},
+				{
+					id: '2',
+					position: {
+						x: 0,
+						y: 1
+					},
+					size: {
+						width: 2,
+						height: 1
+					},
+					data: {
+						name: 'InputText',
+						description: 'A text input component'
+					}
+				}
+			]}
+			let:item
+		>
+			<div class="bg-secondary rounded p-4 w-full h-full overflow-hidden">
+				<h3 class="text-xl font-bold">{item.id}</h3>
+			</div>
+		</Grid>
 	</div>
 </div>

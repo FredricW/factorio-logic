@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Button from '$lib/components/Button.svelte';
+	import Navbar from '$lib/components/Navbar.svelte';
 	import { supabase } from '$lib/supabaseClient';
 	import type { PageData } from './$types';
 	export let data: PageData;
@@ -16,6 +17,9 @@
 	};
 </script>
 
+{#if data.session}
+	<Navbar {data} />
+{/if}
 <div class="max-w-xl m-auto py-12 px-4">
 	<div class="prose mb-4">
 		<h1>Account</h1>

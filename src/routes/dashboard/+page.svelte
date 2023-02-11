@@ -4,6 +4,7 @@
 	import Card from '$lib/components/Card.svelte';
 	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
+	import Navbar from '$lib/components/Navbar.svelte';
 
 	export let data: PageData;
 
@@ -14,6 +15,9 @@
 	};
 </script>
 
+{#if data.session}
+	<Navbar {data} />
+{/if}
 <div class="max-w-4xl m-auto py-8 px-4">
 	<div class="prose mb-8">
 		<h1>Dashboard</h1>
