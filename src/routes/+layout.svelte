@@ -3,9 +3,6 @@
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
 	import '../app.css';
-	import type { PageData } from './$types';
-
-	export let data: PageData;
 
 	onMount(() => {
 		const {

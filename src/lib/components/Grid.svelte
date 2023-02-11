@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
 	interface GridItem {
 		id: string;
 		position: {
@@ -14,7 +15,13 @@
 
 	export let items: GridItem[] = [];
 
-	const getOuterRect = (items: GridItem[]) => {
+	const dispatch = createEventDispatcher();
+	const onClick = (position: { x: number; y: number }) => (e: MouseEvent) => {
+		e.preventDefault();
+		dispatch('click', position);
+	};
+
+	$: getOuterRect = (items: GridItem[]) => {
 		const padding = 4;
 		const x = items.reduce((acc, item) => Math.min(acc, item.position.x), 0) - padding;
 		const y = items.reduce((acc, item) => Math.min(acc, item.position.y), 0) - padding;
@@ -29,7 +36,7 @@
 		return { x, y, width, height };
 	};
 
-	const outerRect = getOuterRect(items);
+	$: outerRect = getOuterRect(items);
 
 	const getItemByGridPosition = (x: number, y: number) => {
 		const res = items.find((item) => {
@@ -38,6 +45,7 @@
 
 		return res;
 	};
+	const borderWidth = 1;
 </script>
 
 <div class="flex w-full h-full">
@@ -45,16 +53,31 @@
 		<div class="flex-1 flex flex-col">
 			{#each { length: outerRect.height } as _, row}
 				{@const item = getItemByGridPosition(col + outerRect.x, row + outerRect.y)}
-				<div class="bg-base-300 w-full relative border border-gray-500/10 flex-1 hover:bg-base-100">
-					{#if item}
+				{#if item}
+					<div
+						class="bg-base-300 w-full relative border border-gray-500/10 flex-1 hover:bg-base-100"
+					>
 						<div
 							class="absolute z-10"
-							style={`width: ${100 * item.size.width}%; height: ${100 * item.size.height}%`}
+							style:width={`calc(${100 * item.size.width}% + ${
+								(item.size.width - 1) * (borderWidth * 2)
+							}px)`}
+							style:height={`calc(${100 * item.size.height}% + ${
+								(item.size.height - 1) * (borderWidth * 2)
+							}px)`}
 						>
 							<slot {item} />
 						</div>
-					{/if}
-				</div>
+					</div>
+				{:else}
+					<div
+						on:click={onClick({ x: col + outerRect.x, y: row + outerRect.y })}
+						on:keydown
+						on:keyup
+						on:keypress
+						class="bg-base-300 w-full relative border border-gray-500/10 flex-1 hover:bg-base-100"
+					/>
+				{/if}
 			{/each}
 		</div>
 	{/each}
