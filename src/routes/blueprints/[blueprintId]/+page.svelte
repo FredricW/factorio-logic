@@ -23,9 +23,9 @@
 			<button class="btn btn-primary">Publish</button>
 		</div>
 	</div>
-	<div class="flex absolute h-screen top-0">
+	<div class="flex absolute h-screen top-0 z-20 pointer-events-none">
 		<div class="flex items-center">
-			<div class="bg-base-100 rounded-r min-w-[260px]">
+			<div class="bg-base-100 rounded-r min-w-[260px] pointer-events-auto">
 				<div class="p-4">
 					<h3 class="text-xl font-bold">Components</h3>
 				</div>
