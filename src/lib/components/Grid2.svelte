@@ -74,9 +74,7 @@
 				on:keyup
 				on:keypress
 				class="fill-base-200 transition-all hover:fill-base-100 cursor-pointer stroke-[0.5] stroke-base-100"
-			>
-				<line x1="100%" y1="0%" x2="0%" y2="100%" style="stroke: red;stroke-width: 5;" />
-			</rect>
+			/>
 		{/each}
 	{/each}
 	{#each items as item}
