@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { readable } from 'svelte/store';
 
 	// Implements an svg grid system
 
@@ -15,6 +16,7 @@
 		};
 		data: any;
 	}
+	const gridSize = 64; // px
 
 	export let items: GridItem[] = [];
 
@@ -36,10 +38,11 @@
 			items.reduce((acc, item) => Math.max(acc, item.position.y + item.size.height), 0) -
 			y +
 			padding;
-		return { x, y, width, height };
+		return { x: x * gridSize, y: y * gridSize, width: width * gridSize, height: height * gridSize };
 	};
 
 	$: outerRect = getOuterRect(items);
+	$: viewBox = readable(outerRect);
 
 	$: console.log(outerRect);
 
@@ -50,37 +53,49 @@
 
 		return res;
 	};
-	const borderWidth = 1;
 </script>
 
 <svg
 	class="w-full h-full overflow-visible px-4"
-	viewBox={[outerRect.x, outerRect.y, outerRect.width, outerRect.height].join(' ')}
+	viewBox={[$viewBox.x, $viewBox.y, $viewBox.width, $viewBox.height].join(' ')}
 >
-	{#each { length: outerRect.width } as _, col}
-		{#each { length: outerRect.height } as _, row}
+	{#each { length: outerRect.width / gridSize } as _, col}
+		{#each { length: outerRect.height / gridSize } as _, row}
 			<rect
-				x={col + outerRect.x}
-				y={row + outerRect.y}
-				width={1}
-				height={1}
-				on:click={onClick({ x: col + outerRect.x, y: row + outerRect.y })}
+				x={(col + outerRect.x / gridSize) * gridSize}
+				y={(row + outerRect.y / gridSize) * gridSize}
+				width={gridSize}
+				height={gridSize}
+				on:click={onClick({
+					x: col + outerRect.x / gridSize,
+					y: row + outerRect.y / gridSize
+				})}
 				on:keydown
 				on:keyup
 				on:keypress
-				class="fill-base-200 hover:fill-base-100 cursor-pointer stroke-[0.01] stroke-base-100"
-			/>
+				class="fill-base-200 transition-all hover:fill-base-100 cursor-pointer stroke-[0.2] stroke-base-100"
+			>
+				<line x1="100%" y1="0%" x2="0%" y2="100%" style="stroke: red;stroke-width: 5;" />
+			</rect>
 		{/each}
 	{/each}
 	{#each items as item}
 		<svg
-			x={item.position.x}
-			y={item.position.y}
-			width={item.size.width}
-			height={item.size.height}
+			x={item.position.x * gridSize}
+			y={item.position.y * gridSize}
+			width={item.size.width * gridSize}
+			height={item.size.height * gridSize}
 			class="overflow-visible"
 		>
 			<slot {item} />
+			<!-- <text
+				x="50%"
+				y="50%"
+				font-size="1rem"
+				text-anchor="middle"
+				dominant-baseline="middle"
+				class="fill-primary-content">{item.id}</text
+			> -->
 		</svg>
 	{/each}
 </svg>
