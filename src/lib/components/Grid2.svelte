@@ -112,7 +112,7 @@
 			height={item.size.height * gridSize}
 			class="overflow-visible"
 		>
-			<foreignObject x="0" y="0" width="100%" height="100%">
+			<foreignObject x="0" y="0" width="100%" height="100%" class="overflow-visible">
 				<slot {item} />
 			</foreignObject>
 			<!-- <text

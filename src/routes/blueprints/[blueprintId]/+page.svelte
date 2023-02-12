@@ -93,7 +93,7 @@
 				><text class="fill-white">{item.id}</text></rect
 			> -->
 			<div class="p-1 w-full h-full">
-				<div class="bg-primary rounded h-full w-full p-2">
+				<div class="bg-primary rounded shadow-lg h-full w-full p-2">
 					<h3 class="text-xl text-primary-content font-bold">{item.id}</h3>
 				</div>
 			</div>
