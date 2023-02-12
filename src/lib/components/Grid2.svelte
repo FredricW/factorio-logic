@@ -53,6 +53,8 @@
 
 		return res;
 	};
+	const crossModifier = 8;
+	const crossSize = 1;
 </script>
 
 <svg
@@ -61,20 +63,40 @@
 >
 	{#each { length: outerRect.width / gridSize } as _, col}
 		{#each { length: outerRect.height / gridSize } as _, row}
-			<rect
-				x={(col + outerRect.x / gridSize) * gridSize}
-				y={(row + outerRect.y / gridSize) * gridSize}
-				width={gridSize}
-				height={gridSize}
-				on:click={onClick({
-					x: col + outerRect.x / gridSize,
-					y: row + outerRect.y / gridSize
-				})}
-				on:keydown
-				on:keyup
-				on:keypress
-				class="fill-base-200 transition-all hover:fill-base-100 cursor-pointer stroke-[0.5] stroke-base-100"
-			/>
+			{@const x = (col + outerRect.x / gridSize) * gridSize}
+			{@const y = (row + outerRect.y / gridSize) * gridSize}
+			<g>
+				<rect
+					{x}
+					{y}
+					width={gridSize}
+					height={gridSize}
+					on:click={onClick({
+						x: col + outerRect.x / gridSize,
+						y: row + outerRect.y / gridSize
+					})}
+					on:keydown
+					on:keyup
+					on:keypress
+					class="fill-base-200 transition-all hover:fill-base-100 cursor-pointer stroke-[0.5] stroke-base-100"
+				/>
+				<line
+					x1={x - gridSize / crossModifier}
+					y1={y}
+					x2={x + gridSize / crossModifier}
+					y2={y}
+					stroke-width={crossSize}
+					class="stroke-base-content/10"
+				/>
+				<line
+					x1={x}
+					y1={y - gridSize / crossModifier}
+					x2={x}
+					y2={y + gridSize / crossModifier}
+					stroke-width={crossSize}
+					class="stroke-base-content/10"
+				/>
+			</g>
 		{/each}
 	{/each}
 	{#each items as item}
@@ -85,7 +107,7 @@
 			height={item.size.height * gridSize}
 			class="overflow-visible"
 		>
-			<foreignObject x="0" y="0" width="100%" height="100%" class="overflow-visible">
+			<foreignObject x="0" y="0" width="100%" height="100%">
 				<slot {item} />
 			</foreignObject>
 			<!-- <text
