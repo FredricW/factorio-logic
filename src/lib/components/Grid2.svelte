@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { readable } from 'svelte/store';
+	import { spring } from 'svelte/motion';
+
+	let viewBox = spring({ x: 0, y: 0, width: 0, height: 0 });
 
 	// Implements an svg grid system
 
@@ -42,7 +44,10 @@
 	};
 
 	$: outerRect = getOuterRect(items);
-	$: viewBox = readable(outerRect);
+	$: {
+		viewBox.set(outerRect);
+	}
+	// $: viewBox = readable(outerRect);
 
 	$: console.log(outerRect);
 
