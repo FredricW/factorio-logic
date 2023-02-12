@@ -73,7 +73,7 @@
 				on:keydown
 				on:keyup
 				on:keypress
-				class="fill-base-200 transition-all hover:fill-base-100 cursor-pointer stroke-[0.2] stroke-base-100"
+				class="fill-base-200 transition-all hover:fill-base-100 cursor-pointer stroke-[0.5] stroke-base-100"
 			>
 				<line x1="100%" y1="0%" x2="0%" y2="100%" style="stroke: red;stroke-width: 5;" />
 			</rect>
@@ -87,7 +87,9 @@
 			height={item.size.height * gridSize}
 			class="overflow-visible"
 		>
-			<slot {item} />
+			<foreignObject x="0" y="0" width="100%" height="100%" class="overflow-visible">
+				<slot {item} />
+			</foreignObject>
 			<!-- <text
 				x="50%"
 				y="50%"

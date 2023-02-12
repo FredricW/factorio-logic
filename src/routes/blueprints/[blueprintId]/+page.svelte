@@ -89,9 +89,14 @@
 	</div>
 	<div class="flex items-center justify-center h-[90vh]">
 		<Grid2 bind:items let:item on:click={addComponent}>
-			<rect width="100%" height="100%" class="fill-primary hover:fill-primary-focus"
+			<!-- <rect width="100%" height="100%" class="fill-primary hover:fill-primary-focus"
 				><text class="fill-white">{item.id}</text></rect
-			>
+			> -->
+			<div class="p-1 w-full h-full">
+				<div class="bg-primary rounded h-full w-full p-2">
+					<h3 class="text-xl text-primary-content font-bold">{item.id}</h3>
+				</div>
+			</div>
 		</Grid2>
 		<!-- <Grid bind:items let:item on:click={addComponent}>
 			<div class="bg-secondary rounded p-4 w-full h-full overflow-hidden">
