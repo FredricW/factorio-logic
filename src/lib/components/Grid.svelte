@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
+	import { fade } from 'svelte/transition';
 	interface GridItem {
 		id: string;
 		position: {
@@ -55,6 +56,7 @@
 				{@const item = getItemByGridPosition(col + outerRect.x, row + outerRect.y)}
 				{#if item}
 					<div
+						transition:fade
 						class="bg-base-300 w-full relative border border-gray-500/10 flex-1 hover:bg-base-100"
 					>
 						<div
@@ -75,7 +77,7 @@
 						on:keydown
 						on:keyup
 						on:keypress
-						class="bg-base-300 w-full relative border border-gray-500/10 flex-1 hover:bg-base-100"
+						class="bg-base-300 cursor-pointer w-full relative border border-gray-500/10 flex-1 hover:bg-base-100"
 					/>
 				{/if}
 			{/each}
