@@ -59,7 +59,7 @@
 		return res;
 	};
 	const crossModifier = 8;
-	const crossSize = 1;
+	const crossSize = 0.5;
 </script>
 
 <svg
@@ -70,6 +70,7 @@
 		{#each { length: outerRect.height / gridSize } as _, row}
 			{@const x = (col + outerRect.x / gridSize) * gridSize}
 			{@const y = (row + outerRect.y / gridSize) * gridSize}
+			{@const length = gridSize / crossModifier}
 			<g>
 				<rect
 					{x}
@@ -83,21 +84,73 @@
 					on:keydown
 					on:keyup
 					on:keypress
-					class="fill-base-200 transition-all hover:fill-base-100 cursor-pointer stroke-[0.5] stroke-base-100"
+					class="fill-base-200 transition-all hover:shadow-2xl hover:fill-base-100 cursor-pointer stroke-[0.5] stroke-base-100"
 				/>
+
 				<line
-					x1={x - gridSize / crossModifier}
+					x1={x}
 					y1={y}
-					x2={x + gridSize / crossModifier}
+					x2={x + length}
 					y2={y}
 					stroke-width={crossSize}
 					class="stroke-base-content/10"
 				/>
 				<line
 					x1={x}
-					y1={y - gridSize / crossModifier}
+					y1={y}
 					x2={x}
-					y2={y + gridSize / crossModifier}
+					y2={y + length}
+					stroke-width={crossSize}
+					class="stroke-base-content/10"
+				/>
+
+				<line
+					x1={x + gridSize}
+					y1={y + gridSize}
+					x2={x + gridSize - length}
+					y2={y + gridSize}
+					stroke-width={crossSize}
+					class="stroke-base-content/10"
+				/>
+				<line
+					x1={x + gridSize}
+					y1={y + gridSize}
+					x2={x + gridSize}
+					y2={y + gridSize - length}
+					stroke-width={crossSize}
+					class="stroke-base-content/10"
+				/>
+
+				<line
+					x1={x + gridSize}
+					y1={y}
+					x2={x + gridSize}
+					y2={y + length}
+					stroke-width={crossSize}
+					class="stroke-base-content/10"
+				/>
+				<line
+					x1={x + gridSize}
+					y1={y}
+					x2={x + gridSize - length}
+					y2={y}
+					stroke-width={crossSize}
+					class="stroke-base-content/10"
+				/>
+
+				<line
+					x1={x}
+					y1={y + gridSize}
+					x2={x + length}
+					y2={y + gridSize}
+					stroke-width={crossSize}
+					class="stroke-base-content/10"
+				/>
+				<line
+					x1={x}
+					y1={y + gridSize}
+					x2={x}
+					y2={y + gridSize - length}
 					stroke-width={crossSize}
 					class="stroke-base-content/10"
 				/>
