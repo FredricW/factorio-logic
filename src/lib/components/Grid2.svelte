@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { spring } from 'svelte/motion';
+	import { fade } from 'svelte/transition';
 
 	let viewBox = spring({ x: 0, y: 0, width: 0, height: 0 });
 
@@ -163,6 +164,7 @@
 			y={item.position.y * gridSize}
 			width={item.size.width * gridSize}
 			height={item.size.height * gridSize}
+			in:fade={{ duration: 100 }}
 			class="overflow-visible"
 		>
 			<foreignObject x="0" y="0" width="100%" height="100%" class="overflow-visible">
