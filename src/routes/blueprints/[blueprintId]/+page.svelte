@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Grid from '$lib/components/Grid.svelte';
-	import Grid2 from '$lib/components/Grid2.svelte';
+	import Grid2 from '$lib/components/Grid/Grid2.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
