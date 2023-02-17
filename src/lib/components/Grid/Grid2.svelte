@@ -56,13 +56,16 @@
 		</pattern>
 	</defs>
 
-	<rect
-		x={$hoverPosition.x * gridScale}
-		y={$hoverPosition.y * gridScale}
-		width={gridScale}
-		height={gridScale}
-		class="fill-base-300 stroke-base-300"
-	/>
+	{#key $hoverPosition.x + $hoverPosition.y}
+		<rect
+			out:fade={{ duration: 50 }}
+			x={$hoverPosition.x * gridScale}
+			y={$hoverPosition.y * gridScale}
+			width={gridScale}
+			height={gridScale}
+			class="fill-base-300 stroke-base-300"
+		/>
+	{/key}
 
 	<rect
 		x={$viewBox.x}
