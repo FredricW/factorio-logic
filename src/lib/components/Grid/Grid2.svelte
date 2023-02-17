@@ -41,7 +41,7 @@
 <p class="absolute top-12">Elem: x|{$hoverPosition.x} y|{$hoverPosition.y}</p>
 <svg
 	bind:this={svg}
-	class="w-full h-full overflow-visible px-4"
+	class="w-full h-full overflow-visible px-4 cursor-pointer"
 	viewBox={[$viewBox.x, $viewBox.y, $viewBox.width, $viewBox.height].join(' ')}
 >
 	<defs>
@@ -53,15 +53,26 @@
 				class="stroke-base-100"
 				stroke-width="1"
 			/>
-		</pattern></defs
-	>
+		</pattern>
+	</defs>
 
 	<rect
-		x={scaledRect.x}
-		y={scaledRect.y}
-		width={scaledRect.width}
-		height={scaledRect.height}
+		x={$hoverPosition.x * gridScale}
+		y={$hoverPosition.y * gridScale}
+		width={gridScale}
+		height={gridScale}
+		class="fill-base-300 stroke-base-300"
+	/>
+
+	<rect
+		x={$viewBox.x}
+		y={$viewBox.y}
+		width={$viewBox.width}
+		height={$viewBox.height}
 		fill="url(#grid)"
+		class="outline-none stroke-accent/50 stroke-1"
+		rx={4}
+		ry={4}
 		on:mousemove={(e) => {
 			const CTM = svg.getScreenCTM();
 
