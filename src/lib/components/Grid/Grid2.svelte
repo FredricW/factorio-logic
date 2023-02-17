@@ -44,19 +44,29 @@
 
 <svelte:window
 	on:mousemove={(e) => {
-		updateDragging(mouseEventToSVGPosition(e, svg));
-	}}
-	on:mouseup={() => {
 		if (!$activeItem) return;
 
+		updateDragging(mouseEventToSVGPosition(e, svg), $activeItem);
+	}}
+	on:mouseup={(e) => {
+		if (!$activeItem) return;
+
+		const currentPosition = mouseEventToSVGPosition(e, svg);
+
 		items = items.map((item) => {
-			if (item.id === $activeItem) {
+			if (item.id === $activeItem?.id) {
+				const gridOffset = {
+					x: Math.floor($activeItem.offset.x / gridScale),
+					y: Math.floor($activeItem.offset.y / gridScale)
+				};
+				const newPosition = {
+					x: Math.floor(currentPosition.x / gridScale) - gridOffset.x,
+					y: Math.floor(currentPosition.y / gridScale) - gridOffset.y
+				};
+
 				return {
 					...item,
-					position: {
-						x: Math.floor($itemPosition.x / gridScale),
-						y: Math.floor($itemPosition.y / gridScale)
-					}
+					position: newPosition
 				};
 			}
 			return item;
@@ -124,8 +134,8 @@
 		}}
 	/>
 	{#each items as item}
-		{@const x = $activeItem === item.id ? $itemPosition.x : item.position.x * gridScale}
-		{@const y = $activeItem === item.id ? $itemPosition.y : item.position.y * gridScale}
+		{@const x = $activeItem?.id === item.id ? $itemPosition.x : item.position.x * gridScale}
+		{@const y = $activeItem?.id === item.id ? $itemPosition.y : item.position.y * gridScale}
 		<svg
 			{x}
 			{y}
@@ -136,7 +146,18 @@
 			id={item.id}
 			on:mousedown={(e) => {
 				const position = mouseEventToSVGPosition(e, svg);
-				startDragging(item, position);
+				const offset = {
+					x: position.x - parseFloat(e.currentTarget?.getAttributeNS(null, 'x') ?? '0'),
+					y: position.y - parseFloat(e.currentTarget?.getAttributeNS(null, 'y') ?? '0')
+				};
+				startDragging(
+					{
+						id: item.id,
+						offset,
+						data: item.data
+					},
+					position
+				);
 			}}
 			on:mouseenter={() => {
 				hoverPosition.set(item.position);

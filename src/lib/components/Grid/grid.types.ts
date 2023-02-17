@@ -18,3 +18,9 @@ export interface Rectangle {
 	width: number;
 	height: number;
 }
+
+export interface DraggableItem {
+	id: string;
+	offset: Position;
+	data?: any;
+}
