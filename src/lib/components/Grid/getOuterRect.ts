@@ -9,7 +9,6 @@ export const getOuterRect = (items: GridItem[], padding = 3) => {
 		items.reduce((acc, item) => Math.max(acc, item.position.y + item.size.height), 0) - y + padding;
 
 	const rect: Rectangle = { x, y, width, height };
-	console.log('getOuterRect: rect = ', rect, ' padding = ', padding, ' items = ', items);
 
 	return rect;
 };

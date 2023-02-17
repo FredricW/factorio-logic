@@ -1,37 +1,22 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import { spring } from 'svelte/motion';
+	import { tweened } from 'svelte/motion';
+	import { cubicInOut } from 'svelte/easing';
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
+	import { itemPosition, startDragging, stopDragging, updateDragging } from './dragAndDrop';
 	import { getOuterRect } from './getOuterRect';
 	import type { Rectangle, GridItem } from './grid.types';
-	import GridCell from './GridCell.svelte';
 	import { scaleRect } from './scaleRect';
 
-	let viewBox = spring<Rectangle>({ x: 0, y: 0, width: 0, height: 0 });
-	let itemPosition = writable({ x: 0, y: 0 });
-	let activeItem = writable<string | null>(null);
-	$: console.log('items', items);
-	$: console.log('activeItem', $activeItem);
-	$: console.log('itemPosition', $itemPosition);
-
-	// drag and drop
-	const startDragging = (item: GridItem) => {
-		activeItem.set(item.id);
-		itemPosition.set(item.position);
-	};
-
-	const stopDragging = () => {
-		activeItem.set(null);
-	};
-
-	// function getMousePosition(event) {
-	// 	var CTM = svg.getScreenCTM();
-	// 	return {
-	// 		x: (evt.clientX - CTM.e) / CTM.a,
-	// 		y: (evt.clientY - CTM.f) / CTM.d
-	// 	};
-	// }
+	let viewBox = tweened<Rectangle>(
+		{ x: 0, y: 0, width: 0, height: 0 },
+		{
+			duration: 300,
+			easing: cubicInOut
+		}
+	);
+	let svg: SVGSVGElement;
 
 	const gridScale = 64; // px
 
@@ -48,38 +33,68 @@
 	$: viewBox.set(scaledRect);
 
 	let hoverPosition = writable({ x: 0, y: 0 });
-
-	$: xAxis = new Array(outerRect.width).fill(0).map((_, i) => i + outerRect.x);
-	$: yAxis = new Array(outerRect.height).fill(0).map((_, i) => i + outerRect.y);
 </script>
 
-<svelte:window
-	on:mousemove={(e) => {
-		if ($activeItem) {
-			// const { x, y } = getGridPosition(e.clientX, e.clientY);
-			itemPosition.update((p) => ({ x: p.x + e.movementX, y: p.y + e.movementY }));
-		}
-	}}
-	on:mouseup={stopDragging}
-/>
+<svelte:window on:mousemove={updateDragging} on:mouseup={stopDragging} />
 
 <p class="absolute top-4">Position: x|{$itemPosition.x} y|{$itemPosition.y}</p>
 <p class="absolute top-12">Elem: x|{$hoverPosition.x} y|{$hoverPosition.y}</p>
 <svg
+	bind:this={svg}
 	class="w-full h-full overflow-visible px-4"
 	viewBox={[$viewBox.x, $viewBox.y, $viewBox.width, $viewBox.height].join(' ')}
 >
-	{#each xAxis as x}
-		{#each yAxis as y}
-			<GridCell
-				rectangle={scaleRect({ x, y, width: 1, height: 1 }, gridScale)}
-				on:click={onClick({ x, y })}
-				on:mouseenter={() => {
-					hoverPosition.set({ x, y });
-				}}
+	<defs>
+		<pattern id="grid" width={gridScale} height={gridScale} patternUnits="userSpaceOnUse">
+			<rect
+				width={gridScale}
+				height={gridScale}
+				fill="none"
+				class="stroke-base-100"
+				stroke-width="1"
 			/>
-		{/each}
-	{/each}
+		</pattern></defs
+	>
+
+	<rect
+		x={scaledRect.x}
+		y={scaledRect.y}
+		width={scaledRect.width}
+		height={scaledRect.height}
+		fill="url(#grid)"
+		on:mousemove={(e) => {
+			const CTM = svg.getScreenCTM();
+
+			if (!CTM) return;
+
+			const position = {
+				x: (e.clientX - CTM.e) / CTM.a,
+				y: (e.clientY - CTM.f) / CTM.d
+			};
+			hoverPosition.set({
+				x: Math.floor(position.x / gridScale),
+				y: Math.floor(position.y / gridScale)
+			});
+		}}
+		on:focus
+		on:click={(e) => {
+			const CTM = svg.getScreenCTM();
+
+			if (!CTM) return;
+
+			const position = {
+				x: (e.clientX - CTM.e) / CTM.a,
+				y: (e.clientY - CTM.f) / CTM.d
+			};
+			onClick({
+				x: Math.floor(position.x / gridScale),
+				y: Math.floor(position.y / gridScale)
+			})(e);
+		}}
+		on:keydown={(e) => {
+			console.log(e);
+		}}
+	/>
 	{#each items as item}
 		<svg
 			x={item.position.x * gridScale}
@@ -90,7 +105,6 @@
 			class="overflow-visible absolute"
 			id={item.id}
 			on:mousedown={() => {
-				console.log('mousedown');
 				startDragging(item);
 			}}
 			on:mouseenter={() => {
@@ -100,14 +114,6 @@
 			<foreignObject x="0" y="0" width="100%" height="100%" class="overflow-visible">
 				<slot {item} />
 			</foreignObject>
-			<!-- <text
-				x="50%"
-				y="50%"
-				font-size="1rem"
-				text-anchor="middle"
-				dominant-baseline="middle"
-				class="fill-primary-content">{item.id}</text
-			> -->
 		</svg>
 	{/each}
 </svg>
