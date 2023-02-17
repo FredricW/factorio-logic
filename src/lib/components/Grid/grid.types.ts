@@ -1,9 +1,10 @@
+export interface Position {
+	x: number;
+	y: number;
+}
 export interface GridItem {
 	id: string;
-	position: {
-		x: number;
-		y: number;
-	};
+	position: Position;
 	size: {
 		width: number;
 		height: number;

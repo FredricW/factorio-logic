@@ -4,10 +4,17 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
-	import { itemPosition, startDragging, stopDragging, updateDragging } from './dragAndDrop';
+	import {
+		activeItem,
+		itemPosition,
+		startDragging,
+		stopDragging,
+		updateDragging
+	} from './dragAndDrop';
 	import { getOuterRect } from './getOuterRect';
 	import type { Rectangle, GridItem } from './grid.types';
 	import { scaleRect } from './scaleRect';
+	import { mouseEventToSVGPosition } from './mouseEventToSVGPosition';
 
 	let viewBox = tweened<Rectangle>(
 		{ x: 0, y: 0, width: 0, height: 0 },
@@ -35,7 +42,28 @@
 	let hoverPosition = writable({ x: 0, y: 0 });
 </script>
 
-<svelte:window on:mousemove={updateDragging} on:mouseup={stopDragging} />
+<svelte:window
+	on:mousemove={(e) => {
+		updateDragging(mouseEventToSVGPosition(e, svg));
+	}}
+	on:mouseup={() => {
+		if (!$activeItem) return;
+
+		items = items.map((item) => {
+			if (item.id === $activeItem) {
+				return {
+					...item,
+					position: {
+						x: Math.floor($itemPosition.x / gridScale),
+						y: Math.floor($itemPosition.y / gridScale)
+					}
+				};
+			}
+			return item;
+		});
+		stopDragging();
+	}}
+/>
 
 <p class="absolute top-4">Position: x|{$itemPosition.x} y|{$itemPosition.y}</p>
 <p class="absolute top-12">Elem: x|{$hoverPosition.x} y|{$hoverPosition.y}</p>
@@ -77,14 +105,7 @@
 		rx={4}
 		ry={4}
 		on:mousemove={(e) => {
-			const CTM = svg.getScreenCTM();
-
-			if (!CTM) return;
-
-			const position = {
-				x: (e.clientX - CTM.e) / CTM.a,
-				y: (e.clientY - CTM.f) / CTM.d
-			};
+			const position = mouseEventToSVGPosition(e, svg);
 			hoverPosition.set({
 				x: Math.floor(position.x / gridScale),
 				y: Math.floor(position.y / gridScale)
@@ -92,14 +113,7 @@
 		}}
 		on:focus
 		on:click={(e) => {
-			const CTM = svg.getScreenCTM();
-
-			if (!CTM) return;
-
-			const position = {
-				x: (e.clientX - CTM.e) / CTM.a,
-				y: (e.clientY - CTM.f) / CTM.d
-			};
+			const position = mouseEventToSVGPosition(e, svg);
 			onClick({
 				x: Math.floor(position.x / gridScale),
 				y: Math.floor(position.y / gridScale)
@@ -110,16 +124,19 @@
 		}}
 	/>
 	{#each items as item}
+		{@const x = $activeItem === item.id ? $itemPosition.x : item.position.x * gridScale}
+		{@const y = $activeItem === item.id ? $itemPosition.y : item.position.y * gridScale}
 		<svg
-			x={item.position.x * gridScale}
-			y={item.position.y * gridScale}
+			{x}
+			{y}
 			width={item.size.width * gridScale}
 			height={item.size.height * gridScale}
 			in:fade={{ duration: 100 }}
 			class="overflow-visible absolute"
 			id={item.id}
-			on:mousedown={() => {
-				startDragging(item);
+			on:mousedown={(e) => {
+				const position = mouseEventToSVGPosition(e, svg);
+				startDragging(item, position);
 			}}
 			on:mouseenter={() => {
 				hoverPosition.set(item.position);

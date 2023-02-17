@@ -94,7 +94,7 @@
 			> -->
 			<div class="p-1 w-full h-full">
 				<div class="bg-primary rounded shadow-lg h-full w-full p-2">
-					<h3 class="text-xl text-primary-content font-bold">{item.id}</h3>
+					<h3 class="text-xl text-primary-content font-bold select-none">{item.id}</h3>
 				</div>
 			</div>
 		</Grid2>

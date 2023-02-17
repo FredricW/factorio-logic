@@ -1,19 +1,18 @@
 import { writable } from 'svelte/store';
-import type { GridItem } from './grid.types';
+import type { GridItem, Position } from './grid.types';
 
 export const itemPosition = writable({ x: 0, y: 0 });
 export const activeItem = writable<string | null>(null);
 
 // drag and drop
-export const startDragging = (item: GridItem) => {
+export const startDragging = (item: GridItem, position: Position) => {
 	activeItem.set(item.id);
-	itemPosition.set(item.position);
+	itemPosition.set(position);
 };
 
-export const updateDragging = (position: { x: number; y: number }) => {
+export const updateDragging = (position: Position) => {
 	if (activeItem) {
-		// const { x, y } = getGridPosition(e.clientX, e.clientY);
-		// itemPosition.update((p) => ({ x: p.x + e.movementX, y: p.y + e.movementY }));
+		itemPosition.set(position);
 	}
 };
 
