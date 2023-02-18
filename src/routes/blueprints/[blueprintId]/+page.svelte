@@ -1,6 +1,5 @@
 <script lang="ts">
-	import Grid from '$lib/components/Grid.svelte';
-	import Grid2 from '$lib/components/Grid/Grid2.svelte';
+	import Grid from '$lib/components/Grid/Grid.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -88,20 +87,12 @@
 		</div>
 	</div>
 	<div class="flex items-center justify-center h-[90vh]">
-		<Grid2 bind:items let:item on:click={addComponent}>
-			<!-- <rect width="100%" height="100%" class="fill-primary hover:fill-primary-focus"
-				><text class="fill-white">{item.id}</text></rect
-			> -->
+		<Grid bind:items let:item on:click={addComponent}>
 			<div class="p-1 w-full h-full">
 				<div class="bg-primary rounded shadow-lg h-full w-full p-2">
 					<h3 class="text-xl text-primary-content font-bold select-none">{item.id}</h3>
 				</div>
 			</div>
-		</Grid2>
-		<!-- <Grid bind:items let:item on:click={addComponent}>
-			<div class="bg-secondary rounded p-4 w-full h-full overflow-hidden">
-				<h3 class="text-xl font-bold">{item.id}</h3>
-			</div>
-		</Grid> -->
+		</Grid>
 	</div>
 </div>
