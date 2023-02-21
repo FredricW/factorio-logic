@@ -1,43 +1,49 @@
 <script lang="ts">
 	import Grid from '$lib/components/Grid/Grid.svelte';
+	import type { Blueprint } from '$lib/types/blueprint';
+	import FactorioBlueprint from 'factorio-blueprint';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
 
-	let items = [
-		{
-			id: '1',
-			position: {
-				x: -2,
-				y: 0
-			},
-			size: {
-				width: 1,
-				height: 1
-			},
-			data: {
-				name: 'Button',
-				description: 'A button component'
-			}
-		},
-		{
-			id: '2',
-			position: {
-				x: 0,
-				y: 1
-			},
-			size: {
-				width: 2,
-				height: 1
-			},
-			data: {
-				name: 'InputText',
-				description: 'A text input component'
-			}
+	let blueprint: any = null;
+	if (data?.blueprint?.data) {
+		try {
+			blueprint = new FactorioBlueprint(data?.blueprint?.data);
+		} catch (e) {
+			console.error(e);
 		}
-	];
+	} else {
+		blueprint = new FactorioBlueprint();
+	}
+
+	let items =
+		blueprint?.entities.map(
+			(
+				entity: { entity_number: { toString: () => any }; position: { x: any; y: any } },
+				index: { toString: () => any }
+			) => {
+				return {
+					id: entity.entity_number.toString() + index.toString(),
+					position: {
+						x: entity.position.x,
+						y: entity.position.y
+					},
+					size: {
+						width: 1,
+						height: 1
+					},
+					data: entity
+				};
+			}
+		) || [];
 
 	const addComponent = (event: CustomEvent<{ x: number; y: number }>) => {
+		const newEntity = blueprint?.createEntity('constant-combinator', {
+			x: event.detail.x,
+			y: event.detail.y
+		});
+
 		items = [
 			...items,
 			{
@@ -47,13 +53,10 @@
 					y: event.detail.y
 				},
 				size: {
-					width: 1,
-					height: 1
+					width: newEntity.size.x,
+					height: newEntity.size.y
 				},
-				data: {
-					name: 'InputText',
-					description: 'A text input component'
-				}
+				data: newEntity
 			}
 		];
 	};
@@ -89,8 +92,13 @@
 	<div class="flex items-center justify-center h-[90vh]">
 		<Grid bind:items let:item on:click={addComponent}>
 			<div class="p-1 w-full h-full">
-				<div class="bg-primary rounded shadow-lg h-full w-full p-2">
-					<h3 class="text-xl text-primary-content font-bold select-none">{item.id}</h3>
+				<div class="tooltip w-full h-full" data-tip={item.data.name}>
+					<div class="bg-primary rounded shadow-lg h-full w-full p-2 overflow-hidden">
+						<p class="text-xs text-primary-content font-bold select-none">
+							{item.data.name}
+						</p>
+						<h3 class="text-xl text-primary-content font-bold select-none">{item.id}</h3>
+					</div>
 				</div>
 			</div>
 		</Grid>

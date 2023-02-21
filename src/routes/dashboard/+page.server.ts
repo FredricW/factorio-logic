@@ -1,4 +1,5 @@
 import { getSupabase } from '@supabase/auth-helpers-sveltekit';
+import FactorioBlueprint from 'factorio-blueprint';
 import type { Actions } from './$types';
 
 export const actions: Actions = {
@@ -8,13 +9,15 @@ export const actions: Actions = {
 		const { session, supabaseClient } = await getSupabase(event);
 
 		if (session?.user?.id) {
+			const bp = new FactorioBlueprint().toJSON();
+
 			supabaseClient
 				.from('blueprints')
 				.insert([
 					{
 						author: session.user.id,
 						name: formData.get('name') as unknown as string,
-						data: '{}'
+						data: bp
 					}
 				])
 				.then((res) => {

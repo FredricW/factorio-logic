@@ -6,11 +6,13 @@ export const load: ServerLoad = async (event) => {
 
 	if (!event.params.blueprintId) return { blueprint: null };
 
-	const blueprint = await supabaseClient
+	const bpEntity = await supabaseClient
 		.from('blueprints')
 		.select('*')
 		.eq('id', event.params.blueprintId)
 		.single();
 
-	return { blueprint: blueprint.data };
+	return {
+		blueprint: bpEntity.data
+	};
 };
