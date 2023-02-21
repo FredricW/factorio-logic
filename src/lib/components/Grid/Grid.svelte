@@ -12,7 +12,7 @@
 		updateDragging
 	} from './dragAndDrop';
 	import { getOuterRect } from './getOuterRect';
-	import type { Rectangle, GridItem } from './grid.types';
+	import type { Rectangle, GridItem, Position } from './grid.types';
 	import { scaleRect } from './scaleRect';
 	import { mouseEventToSVGPosition } from './mouseEventToSVGPosition';
 
@@ -25,7 +25,7 @@
 	);
 	let svg: SVGSVGElement;
 
-	const gridScale = 64; // px
+	const gridScale = 128; // px
 
 	export let items: GridItem[] = [];
 
@@ -39,14 +39,32 @@
 	$: scaledRect = scaleRect(outerRect, gridScale);
 	$: viewBox.set(scaledRect);
 
-	let hoverPosition = writable({ x: 0, y: 0 });
+	let hoverPosition = writable<Position | null>(null);
+
+	const isWithinBounds = (position: Position) => {
+		const isInsideX = position.x >= outerRect.x && position.x < outerRect.x + outerRect.width;
+		const isInsideY = position.y >= outerRect.y && position.y < outerRect.y + outerRect.height;
+		return isInsideX && isInsideY;
+	};
 </script>
 
 <svelte:window
 	on:mousemove={(e) => {
-		if (!$activeItem) return;
+		const position = mouseEventToSVGPosition(e, svg);
+		if ($activeItem) {
+			updateDragging(position, $activeItem);
+		}
 
-		updateDragging(mouseEventToSVGPosition(e, svg), $activeItem);
+		const scaledPosition = {
+			x: Math.floor(position.x / gridScale),
+			y: Math.floor(position.y / gridScale)
+		};
+
+		if (isWithinBounds(scaledPosition)) {
+			hoverPosition.set(scaledPosition);
+		} else {
+			hoverPosition.set(null);
+		}
 	}}
 	on:mouseup={(e) => {
 		if (!$activeItem) return;
@@ -76,7 +94,7 @@
 />
 
 <p class="absolute top-4">Position: x|{$itemPosition.x} y|{$itemPosition.y}</p>
-<p class="absolute top-12">Elem: x|{$hoverPosition.x} y|{$hoverPosition.y}</p>
+<p class="absolute top-12">Elem: x|{$hoverPosition?.x ?? '-'} y|{$hoverPosition?.y ?? '-'}</p>
 <svg
 	bind:this={svg}
 	class="w-full h-full overflow-visible px-4 cursor-pointer"
@@ -94,16 +112,18 @@
 		</pattern>
 	</defs>
 
-	{#key $hoverPosition.x + $hoverPosition.y}
-		<rect
-			out:fade={{ duration: 50 }}
-			x={$hoverPosition.x * gridScale}
-			y={$hoverPosition.y * gridScale}
-			width={gridScale}
-			height={gridScale}
-			class="fill-base-300 stroke-base-300"
-		/>
-	{/key}
+	{#if $hoverPosition}
+		{#key $hoverPosition.x + $hoverPosition.y}
+			<rect
+				out:fade={{ duration: 50 }}
+				x={$hoverPosition.x * gridScale}
+				y={$hoverPosition.y * gridScale}
+				width={gridScale}
+				height={gridScale}
+				class="fill-base-300 stroke-base-300"
+			/>
+		{/key}
+	{/if}
 
 	<rect
 		x={$viewBox.x}
@@ -114,13 +134,6 @@
 		class="outline-none stroke-accent/50 stroke-1"
 		rx={4}
 		ry={4}
-		on:mousemove={(e) => {
-			const position = mouseEventToSVGPosition(e, svg);
-			hoverPosition.set({
-				x: Math.floor(position.x / gridScale),
-				y: Math.floor(position.y / gridScale)
-			});
-		}}
 		on:focus
 		on:click={(e) => {
 			const position = mouseEventToSVGPosition(e, svg);
