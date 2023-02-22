@@ -11,34 +11,40 @@ export interface Database {
     Tables: {
       blueprints: {
         Row: {
-          author: string
           collaborators: string[] | null
           created_at: string
           data: Json
           description: string | null
+          history: Json[]
           id: string
           is_public: boolean
           name: string
+          owner: string
+          type: string | null
         }
         Insert: {
-          author: string
           collaborators?: string[] | null
           created_at?: string
           data: Json
           description?: string | null
+          history?: Json[]
           id?: string
           is_public?: boolean
           name: string
+          owner: string
+          type?: string | null
         }
         Update: {
-          author?: string
           collaborators?: string[] | null
           created_at?: string
           data?: Json
           description?: string | null
+          history?: Json[]
           id?: string
           is_public?: boolean
           name?: string
+          owner?: string
+          type?: string | null
         }
       }
       profiles: {

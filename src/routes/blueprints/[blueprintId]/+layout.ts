@@ -1,3 +1,4 @@
+import type { BlueprintModule } from '$lib/types/blueprint';
 import { getSupabase } from '@supabase/auth-helpers-sveltekit';
 import type { ServerLoad } from '@sveltejs/kit';
 
@@ -13,6 +14,6 @@ export const load: ServerLoad = async (event) => {
 		.single();
 
 	return {
-		blueprint: bpEntity.data
+		blueprint: bpEntity.data as unknown as BlueprintModule | null
 	};
 };

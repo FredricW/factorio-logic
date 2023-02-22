@@ -1,64 +1,55 @@
 <script lang="ts">
+	import { createBlueprintItem, updateBlueprintData } from '$lib/blueprint';
 	import Grid from '$lib/components/Grid/Grid.svelte';
-	import type { Blueprint } from '$lib/types/blueprint';
+	import type { BlueprintItem, BlueprintModule, Position } from '$lib/types/blueprint';
 	import FactorioBlueprint from 'factorio-blueprint';
 	import type { PageData } from './$types';
+	import type { GridItem } from '$lib/components/Grid/grid.types';
 
 	export let data: PageData;
 
-	let blueprint: any = null;
-	if (data?.blueprint?.data) {
-		try {
-			blueprint = new FactorioBlueprint(data?.blueprint?.data);
-		} catch (e) {
-			console.error(e);
-		}
-	} else {
-		blueprint = new FactorioBlueprint();
-	}
+	let blueprintModule = data.blueprint;
 
-	let items =
-		blueprint?.entities.map(
-			(
-				entity: { entity_number: { toString: () => any }; position: { x: any; y: any } },
-				index: { toString: () => any }
-			) => {
-				return {
-					id: entity.entity_number.toString() + index.toString(),
-					position: {
-						x: entity.position.x,
-						y: entity.position.y
-					},
-					size: {
-						width: 1,
-						height: 1
-					},
-					data: entity
-				};
-			}
-		) || [];
+	$: items = blueprintModule?.data.items ?? [];
+	$: gridItems = items.map((item) => {
+		return {
+			id: item.id,
+			position: item.position,
+			size: {
+				width: 1,
+				height: 1
+			},
+			data: item
+		} as GridItem<BlueprintItem>;
+	});
+
+	const moveItem = (event: CustomEvent<GridItem<BlueprintItem>>) => {
+		if (!blueprintModule) return;
+
+		blueprintModule = updateBlueprintData(blueprintModule, {
+			items: items.map((item) => {
+				if (item.id === event.detail.id) {
+					return {
+						...item,
+						position: {
+							x: event.detail.position.x,
+							y: event.detail.position.y
+						}
+					};
+				}
+
+				return item;
+			})
+		});
+	};
 
 	const addComponent = (event: CustomEvent<{ x: number; y: number }>) => {
-		const newEntity = blueprint?.createEntity('constant-combinator', {
+		if (!blueprintModule) return;
+
+		blueprintModule = createBlueprintItem(blueprintModule, 'constant_combinator', {
 			x: event.detail.x,
 			y: event.detail.y
 		});
-
-		items = [
-			...items,
-			{
-				id: (items.length + 1).toString(),
-				position: {
-					x: event.detail.x,
-					y: event.detail.y
-				},
-				size: {
-					width: newEntity.size.x,
-					height: newEntity.size.y
-				},
-				data: newEntity
-			}
-		];
 	};
 </script>
 
@@ -90,12 +81,12 @@
 		</div>
 	</div>
 	<div class="flex items-center justify-center h-[90vh]">
-		<Grid bind:items let:item on:click={addComponent}>
+		<Grid items={gridItems} on:dragend={moveItem} let:item on:click={addComponent}>
 			<div class="p-1 w-full h-full">
-				<div class="tooltip w-full h-full" data-tip={item.data.name}>
+				<div class="tooltip w-full h-full" data-tip={item.data.entity}>
 					<div class="bg-primary rounded shadow-lg h-full w-full p-2 overflow-hidden">
 						<p class="text-xs text-primary-content font-bold select-none">
-							{item.data.name}
+							{item.data.id}
 						</p>
 						<h3 class="text-xl text-primary-content font-bold select-none">{item.id}</h3>
 					</div>

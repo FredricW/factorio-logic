@@ -27,7 +27,9 @@
 
 	const gridScale = 128; // px
 
-	export let items: GridItem[] = [];
+	type T = $$Generic;
+
+	export let items: GridItem<T>[] = [];
 
 	const dispatch = createEventDispatcher();
 	const onClick = (position: { x: number; y: number }) => (e: MouseEvent) => {
@@ -38,6 +40,10 @@
 	$: outerRect = getOuterRect(items, 2);
 	$: scaledRect = scaleRect(outerRect, gridScale);
 	$: viewBox.set(scaledRect);
+
+	function dispatchOnDragEnd(updatedItem: GridItem<T>) {
+		dispatch('dragend', updatedItem);
+	}
 
 	let hoverPosition = writable<Position | null>(null);
 
@@ -82,10 +88,14 @@
 					y: Math.floor(currentPosition.y / gridScale) - gridOffset.y
 				};
 
-				return {
+				const newItem = {
 					...item,
 					position: newPosition
 				};
+
+				dispatchOnDragEnd(newItem);
+
+				return newItem;
 			}
 			return item;
 		});

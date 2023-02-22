@@ -9,7 +9,7 @@ export const load: ServerLoad = async (event) => {
 	const blueprints = await supabaseClient
 		.from('blueprints')
 		.select('*')
-		.eq('author', session.user.id)
+		.eq('owner', session.user.id)
 		.limit(20);
 
 	return { blueprints: blueprints.data };
