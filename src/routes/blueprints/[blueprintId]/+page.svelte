@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { createBlueprintItem, updateBlueprintData } from '$lib/blueprint';
 	import Grid from '$lib/components/Grid/Grid.svelte';
-	import type { BlueprintItem } from '$lib/types/blueprint';
+	import type { BlueprintItem, Position } from '$lib/types/blueprint';
+	import { fade } from 'svelte/transition';
 	import type { PageData } from './$types';
 	import type { GridItem } from '$lib/components/Grid/grid.types';
 
@@ -66,7 +67,11 @@
 		});
 		syncBlueprint();
 	};
+	let mousePosition: Position | null = null;
+	let hoverMessage: string | null = null;
 </script>
+
+<svelte:window on:mousemove={(e) => (mousePosition = { x: e.clientX, y: e.clientY })} />
 
 <div class="max-w-screen-2xl m-auto">
 	<div class="flex justify-between md:px-4">
@@ -97,16 +102,41 @@
 	</div>
 	<div class="flex items-center justify-center h-[90vh]">
 		<Grid items={gridItems} on:dragend={moveItem} let:item on:click={addComponent}>
-			<div class="p-1 w-full h-full">
-				<div class="tooltip w-full h-full" data-tip={item.data.entity}>
-					<div class="bg-primary rounded shadow-lg h-full w-full p-2 overflow-hidden">
-						<p class="text-xs text-primary-content font-bold select-none">
-							{item.data.id}
-						</p>
-						<h3 class="text-xl text-primary-content font-bold select-none">{item.id}</h3>
-					</div>
+			<div
+				class="p-1 w-full h-full"
+				on:mouseenter={(e) => {
+					hoverMessage = item.data.entity;
+				}}
+				on:mouseleave={(e) => {
+					mousePosition = null;
+					hoverMessage = null;
+				}}
+				on:focus={(e) => {
+					// console.log(e);
+				}}
+			>
+				<div class="bg-primary rounded shadow-lg h-full w-full p-2 overflow-hidden">
+					<p class="text-xs text-primary-content font-bold select-none">
+						{item.data.id}
+					</p>
+					<h3 class="text-xl text-primary-content font-bold select-none">{item.id}</h3>
 				</div>
 			</div>
 		</Grid>
 	</div>
 </div>
+
+{#if mousePosition && hoverMessage}
+	<div
+		class="absolute z-50 pointer-events-none"
+		style:left={mousePosition.x + 'px'}
+		style:top={mousePosition.y + 'px'}
+		transition:fade={{ duration: 100 }}
+	>
+		<div class="-mt-8">
+			<div class="tooltip tooltip-open -mt-4" data-tip={hoverMessage}>
+				<div class="-mt-4" />
+			</div>
+		</div>
+	</div>
+{/if}
