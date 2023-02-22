@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { createBlueprintItem, updateBlueprintData } from '$lib/blueprint';
 	import Grid from '$lib/components/Grid/Grid.svelte';
-	import type { BlueprintItem, BlueprintModule, Position } from '$lib/types/blueprint';
-	import FactorioBlueprint from 'factorio-blueprint';
+	import type { BlueprintItem } from '$lib/types/blueprint';
 	import type { PageData } from './$types';
 	import type { GridItem } from '$lib/components/Grid/grid.types';
 
@@ -23,6 +22,20 @@
 		} as GridItem<BlueprintItem>;
 	});
 
+	const syncBlueprint = () => {
+		if (!blueprintModule) return;
+
+		fetch(`/blueprints/${blueprintModule.id}`, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				data: blueprintModule
+			})
+		});
+	};
+
 	const moveItem = (event: CustomEvent<GridItem<BlueprintItem>>) => {
 		if (!blueprintModule) return;
 
@@ -41,6 +54,7 @@
 				return item;
 			})
 		});
+		syncBlueprint();
 	};
 
 	const addComponent = (event: CustomEvent<{ x: number; y: number }>) => {
@@ -50,6 +64,7 @@
 			x: event.detail.x,
 			y: event.detail.y
 		});
+		syncBlueprint();
 	};
 </script>
 
