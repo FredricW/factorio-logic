@@ -7,6 +7,7 @@ import type {
 } from './types/blueprint';
 import { diff } from 'deep-object-diff';
 import type { BlueprintEntityType } from './blueprintEntities';
+import { jsonSchema } from './types/json';
 
 export const createBlueprintModule = (userId: string, name: string): BlueprintModule => {
 	const newBp: BlueprintModule = {
@@ -31,9 +32,9 @@ export const updateBlueprintData = (
 	newData: Partial<BlueprintData>
 ) => {
 	const mergedData = { ...blueprintModule.data, ...newData };
-	const dataDiff = diff(blueprintModule.data, mergedData);
+	const dataDiff = jsonSchema.parse(diff(blueprintModule.data, mergedData));
 	const timestamp = new Date().toISOString();
-	const snapshot: HistorySnapshot<BlueprintData> = {
+	const snapshot: HistorySnapshot = {
 		id: crypto.randomUUID(),
 		ancestor: blueprintModule.history[blueprintModule.history.length - 1]?.id ?? null,
 		timestamp,

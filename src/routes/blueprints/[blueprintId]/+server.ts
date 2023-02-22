@@ -1,3 +1,4 @@
+import { blueprintModuleSchema } from '$lib/types/blueprint';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
@@ -5,14 +6,14 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
 	try {
 		const requestBody = await request.json();
 		const requestData = requestBody.data;
-		const newData = {
+		const newData = blueprintModuleSchema.partial().parse({
 			name: requestData.name,
 			collaborators: requestData.collaborators,
 			description: requestData.description,
 			is_public: requestData.is_public,
 			data: requestData.data,
 			history: requestData.history
-		};
+		});
 
 		locals.sb
 			.from('blueprints')

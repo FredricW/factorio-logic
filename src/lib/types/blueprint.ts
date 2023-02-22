@@ -1,56 +1,64 @@
-import type { BlueprintEntityType } from '$lib/blueprintEntities';
+import { BlueprintEntity } from '$lib/blueprintEntities';
+import { z } from 'zod';
+import { jsonSchema } from './json';
 
-type UUID = string;
-type UserID = UUID;
-type DeepPartial<T> = T extends object
-	? {
-			[P in keyof T]?: DeepPartial<T[P]>;
-	  }
-	: T;
+export const positionSchema = z.object({
+	x: z.number(),
+	y: z.number()
+});
 
-export interface BlueprintModule {
-	id: UUID;
-	type: 'blueprint-module';
-	created_at: string; // datestring
-	name: string;
-	owner: UserID; // uuid
-	description?: string;
-	is_public: boolean;
-	collaborators: UserID[]; // uuid[]
-	data: BlueprintData;
-	history: HistorySnapshot<BlueprintData>[];
-}
+export type Position = z.infer<typeof positionSchema>;
 
-export interface HistorySnapshot<T> {
-	id: UUID;
-	timestamp: string; // datestring
-	diff: DeepPartial<T>;
-	ancestor: UUID;
-}
+export const dimensionsSchema = z.object({
+	height: z.number(),
+	width: z.number()
+});
 
-export interface BlueprintData {
-	items: BlueprintItem[];
-	tiles: Tile[];
-}
+export type Dimensions = z.infer<typeof dimensionsSchema>;
 
-interface Tile {
-	position: Position;
-	type: string; // TODO: make a union for this
-}
+export const tileSchema = z.object({
+	position: positionSchema,
+	type: z.string()
+});
 
-export interface Position {
-	x: number;
-	y: number;
-}
+export type Tile = z.infer<typeof tileSchema>;
 
-export interface Dimensions {
-	height: number;
-	width: number;
-}
+export const blueprintItemSchema = z.object({
+	type: z.literal('blueprint-item'),
+	entity: BlueprintEntity,
+	id: z.string().uuid(),
+	position: positionSchema
+});
 
-export interface BlueprintItem {
-	type: 'blueprint-item';
-	entity: BlueprintEntityType;
-	id: UUID;
-	position: Position;
-}
+export type BlueprintItem = z.infer<typeof blueprintItemSchema>;
+
+export const blueprintDataSchema = z.object({
+	items: z.array(blueprintItemSchema),
+	tiles: z.array(tileSchema)
+});
+
+export type BlueprintData = z.infer<typeof blueprintDataSchema>;
+
+export const historySnapshotSchema = z.object({
+	id: z.string().uuid(),
+	timestamp: z.string().datetime(),
+	diff: jsonSchema,
+	ancestor: z.string().uuid().nullable()
+});
+
+export type HistorySnapshot = z.infer<typeof historySnapshotSchema>;
+
+export const blueprintModuleSchema = z.object({
+	id: z.string().uuid(),
+	type: z.literal('blueprint-module'),
+	created_at: z.string().datetime(),
+	name: z.string(),
+	owner: z.string().uuid(),
+	description: z.string().optional().nullable(),
+	is_public: z.boolean(),
+	collaborators: z.array(z.string().uuid()),
+	data: blueprintDataSchema,
+	history: z.array(historySnapshotSchema)
+});
+
+export type BlueprintModule = z.infer<typeof blueprintModuleSchema>;
