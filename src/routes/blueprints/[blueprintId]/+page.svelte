@@ -5,6 +5,7 @@
 	import { fade, fly } from 'svelte/transition';
 	import type { PageData } from './$types';
 	import type { GridItem } from '$lib/components/Grid/grid.types';
+	import { BlueprintEntity } from '$lib/blueprintEntities';
 
 	export let data: PageData;
 
@@ -120,26 +121,49 @@
 	</div>
 	<div class="flex items-center justify-center h-[90vh]">
 		<Grid items={gridItems} on:dragend={moveItem} let:item on:click={addComponent}>
-			<div
-				class="p-1 w-full h-full"
-				on:mouseenter={(e) => {
-					hoverMessage = item.data.entity;
-				}}
-				on:mouseleave={(e) => {
-					mousePosition = null;
-					hoverMessage = null;
-				}}
-				on:focus={(e) => {
-					// console.log(e);
-				}}
-			>
-				<div class="bg-primary rounded shadow-lg h-full w-full p-2 overflow-hidden">
-					<p class="text-xs text-primary-content font-bold select-none">
-						{item.data.id}
-					</p>
-					<h3 class="text-xl text-primary-content font-bold select-none">{item.id}</h3>
-				</div>
-			</div>
+			{#if item.data.entity === BlueprintEntity.Enum.constant_combinator}
+				<g class="group">
+					<rect
+						x="5%"
+						y="5%"
+						width="90%"
+						height="90%"
+						class="fill-base-100 stroke-base-content/20 group-hover:stroke-base-content drop-shadow-lg focus:outline-accent rounded-lg overflow-hidden transition-all"
+						rx="8"
+						on:mouseenter={(e) => {
+							hoverMessage = item.data.entity;
+						}}
+						on:mouseleave={(e) => {
+							mousePosition = null;
+							hoverMessage = null;
+						}}
+						on:focus={(e) => {
+							// console.log(e);
+						}}
+					/>
+					<text
+						x="50%"
+						y="20%"
+						class="fill-base-300 text-center transition-all group-hover:fill-base-content group-focus:fill-base-content select-none"
+						dominant-baseline="middle"
+						text-anchor="middle"
+					>
+						CONSTANT
+					</text>
+					<circle
+						cx="25%"
+						cy="75%"
+						r="10%"
+						class="stroke-base-300 stroke-2 fill-none transition-all group-hover:stroke-success group-focus:fill-base-content select-none"
+					/>
+					<circle
+						cx="75%"
+						cy="75%"
+						r="10%"
+						class="stroke-base-300 stroke-2 fill-none transition-all group-hover:stroke-error group-focus:fill-base-content select-none"
+					/>
+				</g>
+			{/if}
 		</Grid>
 	</div>
 </div>
@@ -182,7 +206,7 @@
 	</div>
 {/if}
 
-{#if mousePosition && hoverMessage}
+<!-- {#if mousePosition && hoverMessage}
 	<div
 		class="absolute z-50 pointer-events-none"
 		style:left={mousePosition.x + 'px'}
@@ -195,4 +219,4 @@
 			</div>
 		</div>
 	</div>
-{/if}
+{/if} -->
