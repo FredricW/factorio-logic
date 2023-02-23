@@ -2,7 +2,7 @@
 	import { createBlueprintItem, updateBlueprintData } from '$lib/blueprint';
 	import Grid from '$lib/components/Grid/Grid.svelte';
 	import type { BlueprintItem, Position } from '$lib/types/blueprint';
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	import type { PageData } from './$types';
 	import type { GridItem } from '$lib/components/Grid/grid.types';
 
@@ -145,31 +145,35 @@
 </div>
 
 {#if enableHistory}
-	<div class="fixed right-0 top-0 h-full flex items-center pointer-events-none">
-		<div class="bg-base-100 rounded-l p-4 max-h-[80vh] overflow-scroll prose pointer-events-auto">
-			<h3 class="text-center">History</h3>
-			{#if !blueprintModule?.history || blueprintModule.history.length === 0}
-				<p>No history</p>
-			{:else}
-				<table class="table table-compact w-full">
-					<thead>
-						<tr>
-							<th>Timestamp</th>
-							<th>Id</th>
-						</tr>
-					</thead>
-					<tbody>
-						{#each blueprintModule.history as history}
+	<div
+		transition:fly={{ x: 30, duration: 150 }}
+		class="fixed right-0 top-0 h-full flex items-center pointer-events-none"
+	>
+		<div class="pr-4 prose pointer-events-auto">
+			<div class="overflow-scroll max-h-[80vh] shadow-2xl border-2 border-base-100 rounded-lg">
+				{#if !blueprintModule?.history || blueprintModule.history.length === 0}
+					<p>No history</p>
+				{:else}
+					<table class="table my-0 table-compact w-full">
+						<thead>
 							<tr>
-								<td>{toCompactDate(history.timestamp)}</td>
-								<td title={history.id}
-									><span class="text-ellipsis block w-16 overflow-hidden">{history.id}</span></td
-								>
+								<th>Timestamp</th>
+								<th>Id</th>
 							</tr>
-						{/each}
-					</tbody>
-				</table>
-			{/if}
+						</thead>
+						<tbody>
+							{#each blueprintModule.history.reverse() as history}
+								<tr class="hover cursor-pointer">
+									<td>{toCompactDate(history.timestamp)}</td>
+									<td title={history.id}
+										><span class="text-ellipsis block w-16 overflow-hidden">{history.id}</span></td
+									>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				{/if}
+			</div>
 		</div>
 	</div>
 {/if}
