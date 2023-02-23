@@ -69,3 +69,12 @@ export const createBlueprintItem = (
 
 	return newModule;
 };
+
+export const deleteBlueprintItem = (blueprintModule: BlueprintModule, itemId: string) => {
+	const newModule = updateBlueprintData(blueprintModule, {
+		...blueprintModule.data,
+		items: blueprintModule.data.items.filter((item) => item.id !== itemId)
+	});
+
+	return newModule;
+};

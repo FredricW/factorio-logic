@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const literalSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
+const literalSchema = z.union([z.string(), z.number(), z.boolean(), z.null(), z.undefined()]);
 type Literal = z.infer<typeof literalSchema>;
 export type Json = Literal | { [key: string]: Json } | Json[];
 export const jsonSchema: z.ZodType<Json> = z.lazy(() =>

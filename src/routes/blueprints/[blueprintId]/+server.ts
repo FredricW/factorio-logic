@@ -17,7 +17,8 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
 
 		locals.sb
 			.from('blueprints')
-			.update(newData)
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			.update(newData as any) // TODO: Remove this when we have solved deletion diff history
 			.eq('id', params.blueprintId)
 			.eq('owner', locals.session?.user?.id)
 			.throwOnError()

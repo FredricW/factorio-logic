@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { createBlueprintItem, updateBlueprintData } from '$lib/blueprint';
+	import { createBlueprintItem, deleteBlueprintItem, updateBlueprintData } from '$lib/blueprint';
 	import Grid from '$lib/components/Grid/Grid.svelte';
 	import type { BlueprintItem, Position } from '$lib/types/blueprint';
-	import { fade, fly } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 	import type { PageData } from './$types';
 	import type { GridItem } from '$lib/components/Grid/grid.types';
 	import { BlueprintEntity } from '$lib/blueprintEntities';
@@ -139,6 +139,15 @@
 						}}
 						on:focus={(e) => {
 							// console.log(e);
+						}}
+						on:keydown={(e) => {
+							// delete item on backspace
+							if (e.key === 'Backspace') {
+								if (!blueprintModule) return;
+
+								blueprintModule = deleteBlueprintItem(blueprintModule, item.id);
+								syncBlueprint();
+							}
 						}}
 					/>
 					<text
