@@ -149,10 +149,14 @@
 		transition:fly={{ x: 30, duration: 150 }}
 		class="fixed right-0 top-0 h-full flex items-center pointer-events-none"
 	>
-		<div class="pr-4 prose pointer-events-auto">
-			<div class="shadow-2xl max-h-[80vh] overflow-y-auto border-2 border-base-100 rounded-lg">
+		<div class="pr-4 pointer-events-auto">
+			<div
+				class="shadow-2xl bg-base-200 max-h-[80vh] overflow-y-auto border-2 border-base-100 rounded-lg"
+			>
 				{#if !blueprintModule?.history || blueprintModule.history.length === 0}
-					<p>No history</p>
+					<div class="prose">
+						<p class="px-4">No history</p>
+					</div>
 				{:else}
 					<table class="table my-0 table-compact w-full h-full">
 						<thead class="sticky top-0">
