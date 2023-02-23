@@ -69,6 +69,8 @@
 	};
 	let mousePosition: Position | null = null;
 	let hoverMessage: string | null = null;
+
+	let enableHistory = false;
 </script>
 
 <svelte:window on:mousemove={(e) => (mousePosition = { x: e.clientX, y: e.clientY })} />
@@ -89,6 +91,17 @@
 		<div class="py-4">
 			<button class="btn">Invite</button>
 			<button class="btn btn-primary">Publish</button>
+			<label class="cursor-pointer label">
+				<span class="label-text">History</span>
+				<input
+					type="checkbox"
+					class="toggle toggle-primary"
+					on:change={(e) => {
+						enableHistory = e.currentTarget.checked;
+					}}
+					checked={enableHistory}
+				/>
+			</label>
 		</div>
 	</div>
 	<div class="flex absolute h-screen top-0 z-20 pointer-events-none">
@@ -125,6 +138,26 @@
 		</Grid>
 	</div>
 </div>
+
+{#if enableHistory}
+	<div class="fixed right-0 top-0 h-full flex items-center pointer-events-none">
+		<div class="bg-base-100 rounded-l p-4 max-h-[80vh] overflow-scroll prose pointer-events-auto">
+			<h3>History</h3>
+			{#if !blueprintModule?.history || blueprintModule.history.length === 0}
+				<p>No history</p>
+			{:else}
+				<ul>
+					{#each blueprintModule.history as history}
+						<li>
+							<p>{history.id}</p>
+							<p>{history.timestamp}</p>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</div>
+	</div>
+{/if}
 
 {#if mousePosition && hoverMessage}
 	<div
