@@ -71,6 +71,11 @@
 	let hoverMessage: string | null = null;
 
 	let enableHistory = false;
+
+	const toCompactDate = (datestring: string) => {
+		const date = new Date(datestring);
+		return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+	};
 </script>
 
 <svelte:window on:mousemove={(e) => (mousePosition = { x: e.clientX, y: e.clientY })} />
@@ -142,18 +147,28 @@
 {#if enableHistory}
 	<div class="fixed right-0 top-0 h-full flex items-center pointer-events-none">
 		<div class="bg-base-100 rounded-l p-4 max-h-[80vh] overflow-scroll prose pointer-events-auto">
-			<h3>History</h3>
+			<h3 class="text-center">History</h3>
 			{#if !blueprintModule?.history || blueprintModule.history.length === 0}
 				<p>No history</p>
 			{:else}
-				<ul>
-					{#each blueprintModule.history as history}
-						<li>
-							<p>{history.id}</p>
-							<p>{history.timestamp}</p>
-						</li>
-					{/each}
-				</ul>
+				<table class="table table-compact w-full">
+					<thead>
+						<tr>
+							<th>Timestamp</th>
+							<th>Id</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each blueprintModule.history as history}
+							<tr>
+								<td>{toCompactDate(history.timestamp)}</td>
+								<td title={history.id}
+									><span class="text-ellipsis block w-16 overflow-hidden">{history.id}</span></td
+								>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
 			{/if}
 		</div>
 	</div>
