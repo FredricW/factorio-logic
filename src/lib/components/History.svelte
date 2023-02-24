@@ -10,6 +10,8 @@
 	};
 	let currentHistoryId: string | null = null;
 	let activeTooltip: string | null = null;
+	// limit history to 10 items
+	$: history = blueprintModule?.history?.slice(0, 10) ?? [];
 </script>
 
 <div
@@ -29,21 +31,21 @@
 					}}
 					class="btn-group btn-group-vertical"
 				>
-					{#each blueprintModule.history as history, i (history.id)}
+					{#each history as historyItem, i (historyItem.id)}
 						<button
 							class="btn w-10"
-							class:btn-accent={currentHistoryId ? currentHistoryId === history.id : i === 0}
+							class:btn-accent={currentHistoryId ? currentHistoryId === historyItem.id : i === 0}
 							on:click={() => {
-								currentHistoryId = history.id;
+								currentHistoryId = historyItem.id;
 							}}
 							on:mouseenter={() => {
-								activeTooltip = history.id;
+								activeTooltip = historyItem.id;
 							}}
 							>{i}
 							<span
 								class="tooltip tooltip-left absolute left-0 transition-all"
-								class:tooltip-open={activeTooltip === history.id}
-								data-tip={toCompactDate(history.timestamp)}><div /></span
+								class:tooltip-open={activeTooltip === historyItem.id}
+								data-tip={toCompactDate(historyItem.timestamp)}><div /></span
 							>
 						</button>
 					{/each}
