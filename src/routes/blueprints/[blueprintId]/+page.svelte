@@ -6,6 +6,7 @@
 	import type { PageData } from './$types';
 	import type { GridItem } from '$lib/components/Grid/grid.types';
 	import { BlueprintEntity } from '$lib/blueprintEntities';
+	import { onMount } from 'svelte';
 
 	export let data: PageData;
 
@@ -77,11 +78,18 @@
 		const date = new Date(datestring);
 		return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 	};
+	let containerDiv: HTMLDivElement;
+	let borderRadius = '0.5rem';
+	onMount(() => {
+		const newRadius = getComputedStyle(containerDiv).getPropertyValue('--rounded-btn');
+		console.log('newRadius', newRadius);
+		borderRadius = newRadius;
+	});
 </script>
 
 <svelte:window on:mousemove={(e) => (mousePosition = { x: e.clientX, y: e.clientY })} />
 
-<div class="max-w-screen-2xl m-auto">
+<div bind:this={containerDiv} class="max-w-screen-2xl m-auto">
 	<div class="flex justify-between md:px-4">
 		<div>
 			<div class="text-sm breadcrumbs">
@@ -128,8 +136,8 @@
 						y="5%"
 						width="90%"
 						height="90%"
-						class="fill-base-100 stroke-base-content/20 group-hover:stroke-base-content drop-shadow-lg focus:outline-accent rounded-lg overflow-hidden transition-all"
-						rx="8"
+						class="fill-base-100 stroke-base-content/20 group-hover:stroke-base-content drop-shadow-lg focus:outline-accent rounded-btn overflow-hidden transition-all"
+						rx={borderRadius}
 						on:mouseenter={(e) => {
 							hoverMessage = item.data.entity;
 						}}
@@ -184,7 +192,7 @@
 	>
 		<div class="pr-4 pointer-events-auto">
 			<div
-				class="shadow-2xl bg-base-200 max-h-[80vh] overflow-y-auto border-2 border-base-100 rounded-lg"
+				class="shadow-2xl bg-base-200 max-h-[80vh] overflow-y-auto border-2 border-base-100 rounded-box"
 			>
 				{#if !blueprintModule?.history || blueprintModule.history.length === 0}
 					<div class="prose">

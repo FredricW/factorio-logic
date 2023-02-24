@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { invalidate, invalidateAll } from '$app/navigation';
+	import { invalidateAll } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { supabase } from '$lib/supabaseClient';
 	import '../app.css';
