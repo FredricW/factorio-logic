@@ -14,7 +14,7 @@
 	import { getOuterRect } from './getOuterRect';
 	import type { Rectangle, GridItem, Position } from './grid.types';
 	import { scaleRect } from './scaleRect';
-	import { mouseEventToSVGPosition } from './mouseEventToSVGPosition';
+	import { mouseEventToSVGPosition, touchEventToSVGPosition } from './mouseEventToSVGPosition';
 
 	let viewBox = tweened<Rectangle>(
 		{ x: 0, y: 0, width: 0, height: 0 },
@@ -113,6 +113,52 @@
 		});
 		stopDragging();
 	}}
+	on:touchmove={(e) => {
+		const position = touchEventToSVGPosition(e, svg);
+		if ($activeItem) {
+			updateDragging(position, $activeItem);
+		}
+
+		const scaledPosition = {
+			x: Math.floor(position.x / gridScale),
+			y: Math.floor(position.y / gridScale)
+		};
+
+		if (isWithinBounds(scaledPosition)) {
+			hoverPosition.set(scaledPosition);
+		} else {
+			hoverPosition.set(null);
+		}
+	}}
+	on:touchend={(e) => {
+		if (!$activeItem) return;
+
+		const currentPosition = touchEventToSVGPosition(e, svg);
+
+		items = items.map((item) => {
+			if (item.id === $activeItem?.id) {
+				const gridOffset = {
+					x: Math.floor($activeItem.offset.x / gridScale),
+					y: Math.floor($activeItem.offset.y / gridScale)
+				};
+				const newPosition = {
+					x: Math.floor(currentPosition.x / gridScale) - gridOffset.x,
+					y: Math.floor(currentPosition.y / gridScale) - gridOffset.y
+				};
+
+				const newItem = {
+					...item,
+					position: newPosition
+				};
+
+				dispatchOnDragEnd(newItem);
+
+				return newItem;
+			}
+			return item;
+		});
+		stopDragging();
+	}}
 />
 
 <p class="absolute top-4">Position: x|{$itemPosition.x} y|{$itemPosition.y}</p>
@@ -181,6 +227,21 @@
 			id={item.id}
 			on:mousedown={(e) => {
 				const position = mouseEventToSVGPosition(e, svg);
+				const offset = {
+					x: position.x - parseFloat(e.currentTarget?.getAttributeNS(null, 'x') ?? '0'),
+					y: position.y - parseFloat(e.currentTarget?.getAttributeNS(null, 'y') ?? '0')
+				};
+				startDragging(
+					{
+						id: item.id,
+						offset,
+						data: item.data
+					},
+					position
+				);
+			}}
+			on:touchstart={(e) => {
+				const position = touchEventToSVGPosition(e, svg);
 				const offset = {
 					x: position.x - parseFloat(e.currentTarget?.getAttributeNS(null, 'x') ?? '0'),
 					y: position.y - parseFloat(e.currentTarget?.getAttributeNS(null, 'y') ?? '0')
