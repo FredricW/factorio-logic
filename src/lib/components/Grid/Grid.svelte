@@ -15,7 +15,11 @@
 	import { getOuterRect } from './getOuterRect';
 	import type { Rectangle, GridItem, Position } from './grid.types';
 	import { scaleRect } from './scaleRect';
-	import { getPositionFromEvent, positionToGridPosition } from './positionUtils';
+	import {
+		domPositionToSVGPosition,
+		getPositionFromEvent,
+		positionToGridPosition
+	} from './positionUtils';
 
 	// ================================================================================
 	// Props
@@ -204,7 +208,7 @@
 		on:focus
 		on:click={(e) => {
 			const eventPosition = getPositionFromEvent(e);
-			const gridPosition = toGridPosition(eventPosition);
+			const gridPosition = toGridPosition(domPositionToSVGPosition(eventPosition, svg));
 			onClick(gridPosition)(e);
 		}}
 		on:keydown={(e) => {
