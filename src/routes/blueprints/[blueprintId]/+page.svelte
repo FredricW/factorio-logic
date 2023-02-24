@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { createBlueprintItem, deleteBlueprintItem, updateBlueprintData } from '$lib/blueprint';
 	import Grid from '$lib/components/Grid/Grid.svelte';
-	import type { BlueprintItem, Position } from '$lib/types/blueprint';
-	import { fly } from 'svelte/transition';
+	import type { BlueprintItem, BlueprintModule, Position } from '$lib/types/blueprint';
 	import type { PageData } from './$types';
 	import type { GridItem } from '$lib/components/Grid/grid.types';
 	import { BlueprintEntity } from '$lib/blueprintEntities';
 	import { onMount } from 'svelte';
+	import History from '$lib/components/History.svelte';
 
 	export let data: PageData;
 
-	let blueprintModule = data.blueprint;
+	let blueprintModule = data.blueprint as BlueprintModule;
 
 	$: items = blueprintModule?.data.items ?? [];
 	$: gridItems = items.map((item) => {
@@ -74,10 +74,6 @@
 
 	let enableHistory = false;
 
-	const toCompactDate = (datestring: string) => {
-		const date = new Date(datestring);
-		return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-	};
 	let containerDiv: HTMLDivElement;
 	let borderRadius = '0.5rem';
 	onMount(() => {
@@ -186,41 +182,7 @@
 </div>
 
 {#if enableHistory}
-	<div
-		transition:fly={{ x: 30, duration: 150 }}
-		class="fixed right-0 top-0 h-full flex items-center pointer-events-none"
-	>
-		<div class="pr-4 pointer-events-auto">
-			<div
-				class="shadow-2xl bg-base-200 max-h-[80vh] overflow-y-auto border-2 border-base-100 rounded-box"
-			>
-				{#if !blueprintModule?.history || blueprintModule.history.length === 0}
-					<div class="prose">
-						<p class="px-4">No history</p>
-					</div>
-				{:else}
-					<table class="table my-0 table-compact w-full h-full">
-						<thead class="sticky top-0">
-							<tr>
-								<th>Timestamp</th>
-								<th>Id</th>
-							</tr>
-						</thead>
-						<tbody class="overflow-y-auto">
-							{#each blueprintModule.history.reverse() as history}
-								<tr class="hover cursor-pointer">
-									<td>{toCompactDate(history.timestamp)}</td>
-									<td title={history.id}
-										><span class="text-ellipsis block w-16 overflow-hidden">{history.id}</span></td
-									>
-								</tr>
-							{/each}
-						</tbody>
-					</table>
-				{/if}
-			</div>
-		</div>
-	</div>
+	<History {blueprintModule} />
 {/if}
 
 <!-- {#if mousePosition && hoverMessage}
