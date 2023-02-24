@@ -123,7 +123,14 @@
 		</div>
 	</div>
 	<div class="flex items-center justify-center h-[90vh]">
-		<Grid items={gridItems} on:dragend={moveItem} let:item on:click={addComponent}>
+		<Grid
+			items={gridItems}
+			on:dragend={moveItem}
+			let:item
+			manualDragStart
+			let:dragStart
+			on:click={addComponent}
+		>
 			{#if item.data.entity === BlueprintEntity.Enum.constant_combinator}
 				<g class="group">
 					<rect
@@ -133,8 +140,11 @@
 						height="90%"
 						class="fill-base-100 stroke-base-content/20 group-hover:stroke-base-content drop-shadow-lg focus:outline-accent rounded-btn overflow-hidden transition-all"
 						rx={borderRadius}
-						on:mouseenter={(e) => {
+						on:mouseenter={() => {
 							hoverMessage = item.data.entity;
+						}}
+						on:mousedown={(e) => {
+							dragStart(e);
 						}}
 						on:mouseleave={(e) => {
 							mousePosition = null;

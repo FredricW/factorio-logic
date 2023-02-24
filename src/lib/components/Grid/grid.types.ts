@@ -28,10 +28,10 @@ export interface DraggableItem<T = unknown> {
 
 export type DragStartEvent =
 	| (MouseEvent & {
-			currentTarget: EventTarget & SVGSVGElement;
+			currentTarget: EventTarget & SVGElement;
 	  })
 	| (TouchEvent & {
-			currentTarget: EventTarget & SVGSVGElement;
+			currentTarget: EventTarget & SVGElement;
 	  });
 
 export type DragUpdateEvent =

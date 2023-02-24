@@ -8,6 +8,7 @@
 		activeItem,
 		itemPosition,
 		startDragging,
+		startExternalDragging,
 		stopDragging,
 		updateDragging
 	} from './dragAndDrop';
@@ -20,6 +21,16 @@
 		isPositionWithinBoundary,
 		positionToGridPosition
 	} from './positionUtils';
+
+	// ================================================================================
+	// Props
+	// ================================================================================
+	export let items: GridItem<T>[] = [];
+	export let manualDragStart: boolean = false;
+
+	// ================================================================================
+	// Stores
+	// ================================================================================
 
 	let viewBox = tweened<Rectangle>(
 		{ x: 0, y: 0, width: 0, height: 0 },
@@ -34,7 +45,6 @@
 
 	type T = $$Generic;
 
-	export let items: GridItem<T>[] = [];
 	// this will be reorded by the grid to bring the active item to the front
 	$: gridItems = items;
 	$: {
@@ -221,13 +231,27 @@
 			in:fade={{ duration: 100 }}
 			class="overflow-visible absolute touch-none"
 			id={item.id}
-			on:mousedown={startDragging(svg, item)}
-			on:touchstart={startDragging(svg, item)}
+			on:mousedown={(e) => {
+				if (manualDragStart) return;
+
+				startDragging(svg, item)(e);
+			}}
+			on:touchstart={(e) => {
+				if (manualDragStart) return;
+
+				startDragging(svg, item)(e);
+			}}
 			on:mouseenter={() => {
 				hoverPosition.set(item.position);
 			}}
 		>
-			<slot {item} />
+			<slot
+				{item}
+				dragStart={startExternalDragging(svg, item, {
+					x: item.position.x * gridScale,
+					y: item.position.y * gridScale
+				})}
+			/>
 		</svg>
 	{/each}
 </svg>

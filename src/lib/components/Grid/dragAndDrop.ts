@@ -1,5 +1,11 @@
 import { writable, get } from 'svelte/store';
-import type { DraggableItem, DragStartEvent, DragUpdateEvent, GridItem } from './grid.types';
+import type {
+	DraggableItem,
+	DragStartEvent,
+	DragUpdateEvent,
+	GridItem,
+	Position
+} from './grid.types';
 import {
 	domPositionToSVGPosition,
 	getOffsetPositionFromEvent,
@@ -25,6 +31,27 @@ export const startDragging = (svg: SVGSVGElement, item: GridItem) => (event: Dra
 		y: domPosition.y - offset.y
 	});
 };
+
+export const startExternalDragging =
+	(svg: SVGSVGElement, item: GridItem, svgPosition: Position) => (event: DragStartEvent) => {
+		const mousePosition = getPositionFromEvent(event);
+		const domPosition = domPositionToSVGPosition(mousePosition, svg);
+		const offset = {
+			x: domPosition.x - svgPosition.x,
+			y: domPosition.y - svgPosition.y
+		};
+
+		activeItem.set({
+			id: item.id,
+			offset,
+			data: item.data
+		});
+
+		itemPosition.set({
+			x: domPosition.x - offset.x,
+			y: domPosition.y - offset.y
+		});
+	};
 
 export const updateDragging = (svg: SVGSVGElement) => (event: DragUpdateEvent) => {
 	const item = get(activeItem);
