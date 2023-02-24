@@ -164,8 +164,10 @@
 	}}
 />
 
-<span class="badge fixed bottom-4 left-4"
-	>{$hoverPosition?.x ?? '-'} / {$hoverPosition?.y ?? '-'}</span
+<span class="badge fixed bottom-4 left-4 min-w-[4rem] opacity-70 hover:opacity-100"
+	><span class="min-w-[1.5rem] text-center">{$hoverPosition?.x ?? '-'}</span>,<span
+		class="min-w-[1.5rem] text-center">{$hoverPosition?.y ?? '-'}</span
+	></span
 >
 <svg
 	bind:this={svg}
@@ -203,7 +205,7 @@
 		width={$viewBox.width}
 		height={$viewBox.height}
 		fill="url(#grid)"
-		class="outline-none stroke-accent/50 stroke-1"
+		class="outline-none"
 		rx={4}
 		ry={4}
 		on:focus
