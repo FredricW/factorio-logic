@@ -30,6 +30,18 @@
 	type T = $$Generic;
 
 	export let items: GridItem<T>[] = [];
+	// this will be reorded by the grid to bring the active item to the front
+	$: gridItems = items;
+	$: {
+		if ($activeItem) {
+			const active = items.find((item) => item.id === $activeItem?.id);
+			if (active) {
+				const newGridItems = items.filter((item) => item.id !== active.id);
+				newGridItems.push(active);
+				gridItems = newGridItems;
+			}
+		}
+	}
 
 	const dispatch = createEventDispatcher();
 	const onClick = (position: { x: number; y: number }) => (e: MouseEvent) => {
@@ -156,7 +168,7 @@
 			console.log(e);
 		}}
 	/>
-	{#each items as item}
+	{#each gridItems as item (item.id)}
 		{@const x = $activeItem?.id === item.id ? $itemPosition.x : item.position.x * gridScale}
 		{@const y = $activeItem?.id === item.id ? $itemPosition.y : item.position.y * gridScale}
 		<svg

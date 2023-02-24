@@ -153,7 +153,7 @@
 					<text
 						x="50%"
 						y="20%"
-						class="fill-base-300 text-center transition-all group-hover:fill-base-content group-focus:fill-base-content select-none"
+						class="fill-base-300 text-center transition-all group-hover:fill-base-content group-focus:fill-base-content select-none pointer-events-none"
 						dominant-baseline="middle"
 						text-anchor="middle"
 					>
