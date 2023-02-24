@@ -78,20 +78,9 @@
 </script>
 
 <svelte:window
-	on:mousemove={(e) => {
-		updateDragging(svg)(e);
-
-		const eventPosition = getPositionFromEvent(e);
-		const domPosition = domPositionToSVGPosition(eventPosition, svg);
-		const position = toGridPosition(domPosition);
-
-		if (isPositionWithinBoundary(position, outerRect)) {
-			hoverPosition.set(position);
-		} else {
-			hoverPosition.set(null);
-		}
-	}}
+	on:mousemove={updateDragging(svg)}
 	on:mouseup={() => {
+		hoverPosition.set(null);
 		const result = stopDragging();
 
 		if (!result) return;
@@ -121,18 +110,9 @@
 		});
 		stopDragging();
 	}}
-	on:touchmove={(e) => {
-		updateDragging(svg)(e);
-
-		const position = toGridPosition(getPositionFromEvent(e));
-
-		if (isPositionWithinBoundary(position, outerRect)) {
-			hoverPosition.set(position);
-		} else {
-			hoverPosition.set(null);
-		}
-	}}
+	on:touchmove={updateDragging(svg)}
 	on:touchend={() => {
+		hoverPosition.set(null);
 		if (!$activeItem) return;
 
 		const currentPosition = {
