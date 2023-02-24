@@ -15,18 +15,21 @@
 	import { getOuterRect } from './getOuterRect';
 	import type { Rectangle, GridItem, Position } from './grid.types';
 	import { scaleRect } from './scaleRect';
-	import {
-		domPositionToSVGPosition,
-		getPositionFromEvent,
-		isPositionWithinBoundary,
-		positionToGridPosition
-	} from './positionUtils';
+	import { getPositionFromEvent, positionToGridPosition } from './positionUtils';
 
 	// ================================================================================
 	// Props
 	// ================================================================================
+
+	type T = $$Generic;
 	export let items: GridItem<T>[] = [];
 	export let manualDragStart: boolean = false;
+
+	// ================================================================================
+	// Config
+	// ================================================================================
+
+	const gridScale = 128; // px
 
 	// ================================================================================
 	// Stores
@@ -39,15 +42,20 @@
 			easing: cubicInOut
 		}
 	);
+	let hoverPosition = writable<Position | null>(null);
 	let svg: SVGSVGElement;
 
-	const gridScale = 128; // px
+	// ================================================================================
+	// Sync
+	// ================================================================================
 
-	type T = $$Generic;
-
-	// this will be reorded by the grid to bring the active item to the front
 	$: gridItems = items;
+	$: outerRect = getOuterRect(items, 2);
+	$: scaledRect = scaleRect(outerRect, gridScale);
+	$: viewBox.set(scaledRect);
+
 	$: {
+		// if there is an active item, bring it to the front
 		if ($activeItem) {
 			const active = items.find((item) => item.id === $activeItem?.id);
 			if (active) {
@@ -58,21 +66,24 @@
 		}
 	}
 
+	// ================================================================================
+	// Events
+	// ================================================================================
+
 	const dispatch = createEventDispatcher();
+
 	const onClick = (position: { x: number; y: number }) => (e: MouseEvent) => {
 		e.preventDefault();
 		dispatch('click', position);
 	};
 
-	$: outerRect = getOuterRect(items, 2);
-	$: scaledRect = scaleRect(outerRect, gridScale);
-	$: viewBox.set(scaledRect);
-
 	function dispatchOnDragEnd(updatedItem: GridItem<T>) {
 		dispatch('dragend', updatedItem);
 	}
 
-	let hoverPosition = writable<Position | null>(null);
+	// ================================================================================
+	// Helpers
+	// ================================================================================
 
 	const toGridPosition = positionToGridPosition(gridScale);
 </script>
