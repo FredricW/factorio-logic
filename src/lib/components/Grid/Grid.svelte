@@ -164,8 +164,9 @@
 	}}
 />
 
-<p class="absolute top-4">Position: x|{$itemPosition.x} y|{$itemPosition.y}</p>
-<p class="absolute top-12">Elem: x|{$hoverPosition?.x ?? '-'} y|{$hoverPosition?.y ?? '-'}</p>
+<span class="badge fixed bottom-4 left-4"
+	>{$hoverPosition?.x ?? '-'} / {$hoverPosition?.y ?? '-'}</span
+>
 <svg
 	bind:this={svg}
 	class="w-full h-full overflow-visible px-4 cursor-pointer"
