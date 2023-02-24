@@ -130,10 +130,13 @@
 			hoverPosition.set(null);
 		}
 	}}
-	on:touchend={(e) => {
+	on:touchend={() => {
 		if (!$activeItem) return;
 
-		const currentPosition = touchEventToSVGPosition(e, svg);
+		const currentPosition = {
+			x: $itemPosition.x + $activeItem.offset.x,
+			y: $itemPosition.y + $activeItem.offset.y
+		};
 
 		items = items.map((item) => {
 			if (item.id === $activeItem?.id) {
@@ -223,7 +226,7 @@
 			width={item.size.width * gridScale}
 			height={item.size.height * gridScale}
 			in:fade={{ duration: 100 }}
-			class="overflow-visible absolute"
+			class="overflow-visible absolute touch-none"
 			id={item.id}
 			on:mousedown={(e) => {
 				const position = mouseEventToSVGPosition(e, svg);
