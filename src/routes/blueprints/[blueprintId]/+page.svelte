@@ -172,18 +172,40 @@
 					>
 						CONSTANT
 					</text>
-					<circle
-						cx="25%"
-						cy="75%"
-						r="10%"
-						class="stroke-base-300 stroke-2 fill-none transition-all group-hover:stroke-success group-focus:fill-base-content select-none"
-					/>
-					<circle
-						cx="75%"
-						cy="75%"
-						r="10%"
-						class="stroke-base-300 stroke-2 fill-none transition-all group-hover:stroke-error group-focus:fill-base-content select-none"
-					/>
+					<g class="group/green">
+						<circle
+							cx="25%"
+							cy="75%"
+							r="10%"
+							class="stroke-base-300 stroke-2 fill-base-100 transition-all group-hover:stroke-success select-none"
+							on:mousedown={(e) => {
+								e.stopPropagation();
+							}}
+						/>
+						<circle
+							cx="25%"
+							cy="75%"
+							r="5%"
+							class="fill-base-100 group-hover/green:fill-success transition-all"
+						/>
+					</g>
+					<g class="group/red">
+						<circle
+							cx="75%"
+							cy="75%"
+							r="10%"
+							class="stroke-base-300 stroke-2 fill-base-100 transition-all group-hover:stroke-error select-none"
+							on:mousedown={(e) => {
+								e.stopPropagation();
+							}}
+						/>
+						<circle
+							cx="75%"
+							cy="75%"
+							r="5%"
+							class="fill-base-100 group-hover/red:fill-error transition-all"
+						/>
+					</g>
 				</g>
 			{/if}
 		</Grid>
