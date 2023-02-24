@@ -1,27 +1,57 @@
-import { writable } from 'svelte/store';
-import type { DraggableItem, Position } from './grid.types';
+import { writable, get } from 'svelte/store';
+import type { DraggableItem, DragStartEvent, DragUpdateEvent, GridItem } from './grid.types';
+import {
+	domPositionToSVGPosition,
+	getOffsetPositionFromEvent,
+	getPositionFromEvent
+} from './positionUtils';
 
 export const itemPosition = writable({ x: 0, y: 0 });
 export const activeItem = writable<DraggableItem | null>(null);
 
-// drag and drop
-export const startDragging = (item: DraggableItem, position: Position) => {
-	activeItem.set(item);
+export const startDragging = (svg: SVGSVGElement, item: GridItem) => (event: DragStartEvent) => {
+	const rawPosition = getPositionFromEvent(event);
+	const domPosition = domPositionToSVGPosition(rawPosition, svg);
+	const offset = getOffsetPositionFromEvent(event, domPosition);
+
+	activeItem.set({
+		id: item.id,
+		offset,
+		data: item.data
+	});
+
 	itemPosition.set({
-		x: position.x - item.offset.x,
-		y: position.y - item.offset.y
+		x: domPosition.x - offset.x,
+		y: domPosition.y - offset.y
 	});
 };
 
-export const updateDragging = (position: Position, activeItem: DraggableItem) => {
-	if (activeItem) {
-		itemPosition.set({
-			x: position.x - activeItem.offset.x,
-			y: position.y - activeItem.offset.y
-		});
-	}
+export const updateDragging = (svg: SVGSVGElement) => (event: DragUpdateEvent) => {
+	const item = get(activeItem);
+	if (!item) return;
+
+	const rawPosition = getPositionFromEvent(event);
+	const domPosition = domPositionToSVGPosition(rawPosition, svg);
+	const offsetPosition = {
+		x: domPosition.x - item.offset.x,
+		y: domPosition.y - item.offset.y
+	};
+
+	itemPosition.set(offsetPosition);
 };
 
 export const stopDragging = () => {
+	const item = get(activeItem);
+	if (!item) return;
+
+	const position = get(itemPosition);
 	activeItem.set(null);
+
+	return {
+		item,
+		position: {
+			x: position.x + item.offset.x,
+			y: position.y + item.offset.y
+		}
+	};
 };

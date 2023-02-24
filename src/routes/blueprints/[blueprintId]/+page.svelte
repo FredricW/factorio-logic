@@ -78,7 +78,6 @@
 	let borderRadius = '0.5rem';
 	onMount(() => {
 		const newRadius = getComputedStyle(containerDiv).getPropertyValue('--rounded-btn');
-		console.log('newRadius', newRadius);
 		borderRadius = newRadius;
 	});
 </script>

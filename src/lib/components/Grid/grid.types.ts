@@ -25,3 +25,27 @@ export interface DraggableItem<T = unknown> {
 	offset: Position;
 	data?: T;
 }
+
+export type DragStartEvent =
+	| (MouseEvent & {
+			currentTarget: EventTarget & SVGSVGElement;
+	  })
+	| (TouchEvent & {
+			currentTarget: EventTarget & SVGSVGElement;
+	  });
+
+export type DragUpdateEvent =
+	| (MouseEvent & {
+			currentTarget: EventTarget & Window;
+	  })
+	| (TouchEvent & {
+			currentTarget: EventTarget & Window;
+	  });
+
+export type DragEndEvent =
+	| (MouseEvent & {
+			currentTarget: EventTarget & Window;
+	  })
+	| (TouchEvent & {
+			currentTarget: EventTarget & Window;
+	  });

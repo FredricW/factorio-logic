@@ -14,7 +14,12 @@
 	import { getOuterRect } from './getOuterRect';
 	import type { Rectangle, GridItem, Position } from './grid.types';
 	import { scaleRect } from './scaleRect';
-	import { mouseEventToSVGPosition, touchEventToSVGPosition } from './mouseEventToSVGPosition';
+	import {
+		domPositionToSVGPosition,
+		getPositionFromEvent,
+		isPositionWithinBoundary,
+		positionToGridPosition
+	} from './positionUtils';
 
 	let viewBox = tweened<Rectangle>(
 		{ x: 0, y: 0, width: 0, height: 0 },
@@ -59,45 +64,38 @@
 
 	let hoverPosition = writable<Position | null>(null);
 
-	const isWithinBounds = (position: Position) => {
-		const isInsideX = position.x >= outerRect.x && position.x < outerRect.x + outerRect.width;
-		const isInsideY = position.y >= outerRect.y && position.y < outerRect.y + outerRect.height;
-		return isInsideX && isInsideY;
-	};
+	const toGridPosition = positionToGridPosition(gridScale);
 </script>
 
 <svelte:window
 	on:mousemove={(e) => {
-		const position = mouseEventToSVGPosition(e, svg);
-		if ($activeItem) {
-			updateDragging(position, $activeItem);
-		}
+		updateDragging(svg)(e);
 
-		const scaledPosition = {
-			x: Math.floor(position.x / gridScale),
-			y: Math.floor(position.y / gridScale)
-		};
+		const eventPosition = getPositionFromEvent(e);
+		const domPosition = domPositionToSVGPosition(eventPosition, svg);
+		const position = toGridPosition(domPosition);
 
-		if (isWithinBounds(scaledPosition)) {
-			hoverPosition.set(scaledPosition);
+		if (isPositionWithinBoundary(position, outerRect)) {
+			hoverPosition.set(position);
 		} else {
 			hoverPosition.set(null);
 		}
 	}}
-	on:mouseup={(e) => {
-		if (!$activeItem) return;
+	on:mouseup={() => {
+		const result = stopDragging();
 
-		const currentPosition = mouseEventToSVGPosition(e, svg);
+		if (!result) return;
 
+		// update the position of the item
 		items = items.map((item) => {
-			if (item.id === $activeItem?.id) {
+			if (item.id === result.item.id) {
 				const gridOffset = {
-					x: Math.floor($activeItem.offset.x / gridScale),
-					y: Math.floor($activeItem.offset.y / gridScale)
+					x: Math.floor(result.item.offset.x / gridScale),
+					y: Math.floor(result.item.offset.y / gridScale)
 				};
 				const newPosition = {
-					x: Math.floor(currentPosition.x / gridScale) - gridOffset.x,
-					y: Math.floor(currentPosition.y / gridScale) - gridOffset.y
+					x: Math.floor(result.position.x / gridScale) - gridOffset.x,
+					y: Math.floor(result.position.y / gridScale) - gridOffset.y
 				};
 
 				const newItem = {
@@ -114,18 +112,12 @@
 		stopDragging();
 	}}
 	on:touchmove={(e) => {
-		const position = touchEventToSVGPosition(e, svg);
-		if ($activeItem) {
-			updateDragging(position, $activeItem);
-		}
+		updateDragging(svg)(e);
 
-		const scaledPosition = {
-			x: Math.floor(position.x / gridScale),
-			y: Math.floor(position.y / gridScale)
-		};
+		const position = toGridPosition(getPositionFromEvent(e));
 
-		if (isWithinBounds(scaledPosition)) {
-			hoverPosition.set(scaledPosition);
+		if (isPositionWithinBoundary(position, outerRect)) {
+			hoverPosition.set(position);
 		} else {
 			hoverPosition.set(null);
 		}
@@ -210,11 +202,9 @@
 		ry={4}
 		on:focus
 		on:click={(e) => {
-			const position = mouseEventToSVGPosition(e, svg);
-			onClick({
-				x: Math.floor(position.x / gridScale),
-				y: Math.floor(position.y / gridScale)
-			})(e);
+			const eventPosition = getPositionFromEvent(e);
+			const gridPosition = toGridPosition(eventPosition);
+			onClick(gridPosition)(e);
 		}}
 		on:keydown={(e) => {
 			console.log(e);
@@ -231,36 +221,8 @@
 			in:fade={{ duration: 100 }}
 			class="overflow-visible absolute touch-none"
 			id={item.id}
-			on:mousedown={(e) => {
-				const position = mouseEventToSVGPosition(e, svg);
-				const offset = {
-					x: position.x - parseFloat(e.currentTarget?.getAttributeNS(null, 'x') ?? '0'),
-					y: position.y - parseFloat(e.currentTarget?.getAttributeNS(null, 'y') ?? '0')
-				};
-				startDragging(
-					{
-						id: item.id,
-						offset,
-						data: item.data
-					},
-					position
-				);
-			}}
-			on:touchstart={(e) => {
-				const position = touchEventToSVGPosition(e, svg);
-				const offset = {
-					x: position.x - parseFloat(e.currentTarget?.getAttributeNS(null, 'x') ?? '0'),
-					y: position.y - parseFloat(e.currentTarget?.getAttributeNS(null, 'y') ?? '0')
-				};
-				startDragging(
-					{
-						id: item.id,
-						offset,
-						data: item.data
-					},
-					position
-				);
-			}}
+			on:mousedown={startDragging(svg, item)}
+			on:touchstart={startDragging(svg, item)}
 			on:mouseenter={() => {
 				hoverPosition.set(item.position);
 			}}
