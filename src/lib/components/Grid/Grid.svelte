@@ -39,6 +39,7 @@
 	// Stores
 	// ================================================================================
 
+	let isManualViewBox = false;
 	let viewBox = tweened<Rectangle>(
 		{ x: 0, y: 0, width: 0, height: 0 },
 		{
@@ -56,7 +57,9 @@
 	$: gridItems = items;
 	$: outerRect = getOuterRect(items, 2);
 	$: scaledRect = scaleRect(outerRect, gridScale);
-	$: viewBox.set(scaledRect);
+	$: if (!isManualViewBox) {
+		viewBox.set(scaledRect);
+	}
 
 	$: {
 		// if there is an active item, bring it to the front
@@ -93,6 +96,15 @@
 </script>
 
 <svelte:window
+	on:wheel={(e) => {
+		if (!isManualViewBox) {
+			isManualViewBox = true;
+		}
+		viewBox.update((prev) => ({ ...prev, x: prev.x + e.deltaX, y: prev.y + e.deltaY }), {
+			delay: 0,
+			duration: 0
+		});
+	}}
 	on:mousemove={updateDragging(svg)}
 	on:mouseup={() => {
 		hoverPosition.set(null);
@@ -166,6 +178,11 @@
 		class="min-w-[1.5rem] text-center">{$hoverPosition?.y ?? '-'}</span
 	></span
 >
+<span class="badge fixed bottom-20 left-4 min-w-[4rem] opacity-70 hover:opacity-100"
+	><span class="min-w-[1.5rem] text-center">{scrollX ?? '-'}</span>,<span
+		class="min-w-[1.5rem] text-center">{scrollY ?? '-'}</span
+	></span
+>
 <svg
 	bind:this={svg}
 	class="w-full h-full overflow-visible px-4 cursor-pointer"
@@ -202,7 +219,7 @@
 		width={$viewBox.width}
 		height={$viewBox.height}
 		fill="url(#grid)"
-		class="outline-none"
+		class="outline-none overscroll-none"
 		rx={4}
 		ry={4}
 		on:focus
@@ -250,3 +267,10 @@
 		</svg>
 	{/each}
 </svg>
+
+<style>
+	:global(html) {
+		overscroll-behavior: none;
+		overflow: auto;
+	}
+</style>
