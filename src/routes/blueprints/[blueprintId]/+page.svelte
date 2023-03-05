@@ -7,12 +7,42 @@
 	import { BlueprintEntity } from '$lib/blueprintEntities';
 	import { onMount } from 'svelte';
 	import History from '$lib/components/History.svelte';
+	import PixiGrid from '$lib/components/PixiGrid/PixiGrid.svelte';
 
 	export let data: PageData;
 
 	let blueprintModule = data.blueprint as BlueprintModule;
 
-	$: items = blueprintModule?.data.items ?? [];
+	// $: items = blueprintModule?.data.items ?? []
+	$: items = [
+		{
+			id: '1',
+			position: {
+				x: 0,
+				y: 0
+			},
+			type: 'blueprint-item',
+			entity: 'constant_combinator'
+		},
+		{
+			id: '2',
+			position: {
+				x: -2,
+				y: -1
+			},
+			type: 'blueprint-item',
+			entity: 'constant_combinator'
+		},
+		{
+			id: '3',
+			position: {
+				x: 1,
+				y: 3
+			},
+			type: 'blueprint-item',
+			entity: 'constant_combinator'
+		}
+	] as const;
 	$: gridItems = items.map((item) => {
 		return {
 			id: item.id,
@@ -24,6 +54,8 @@
 			data: item
 		} as GridItem<BlueprintItem>;
 	});
+
+	$: console.log('gridItems', gridItems);
 
 	const syncBlueprint = () => {
 		if (!blueprintModule) return;
@@ -83,8 +115,11 @@
 </script>
 
 <svelte:window on:mousemove={(e) => (mousePosition = { x: e.clientX, y: e.clientY })} />
+<div class="absolute h-full w-full z-10">
+	<PixiGrid items={gridItems} />
+</div>
 
-<div bind:this={containerDiv} class="max-w-screen-2xl m-auto">
+<div bind:this={containerDiv} class="z-10 max-w-screen-2xl m-auto relative">
 	<div class="flex justify-between md:px-4">
 		<div>
 			<div class="text-sm breadcrumbs">
@@ -122,8 +157,9 @@
 			</div>
 		</div>
 	</div>
+	<!-- 
 	<div class="flex items-center justify-center h-[90vh]">
-		<Grid
+			<Grid
 			items={gridItems}
 			on:dragend={moveItem}
 			let:item
@@ -210,6 +246,7 @@
 			{/if}
 		</Grid>
 	</div>
+	 -->
 </div>
 
 {#if enableHistory}

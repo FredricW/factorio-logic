@@ -44,6 +44,7 @@
 		"daisyui": "^2.50.0",
 		"deep-object-diff": "^1.1.9",
 		"factorio-blueprint": "^2.5.0",
+		"pixi.js": "^7.1.3",
 		"zod": "^3.20.6"
 	}
 }
