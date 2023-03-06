@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { tweened } from 'svelte/motion';
 	import { cubicInOut } from 'svelte/easing';
 	import { writable } from 'svelte/store';
@@ -43,6 +43,13 @@
 	);
 	let hoverPosition = writable<Position | null>(null);
 	let svg: SVGSVGElement;
+	let itemPositions = tweened<Record<string, Position>>(
+		{},
+		{
+			duration: 150,
+			easing: cubicInOut
+		}
+	);
 
 	// ================================================================================
 	// Sync
@@ -59,6 +66,33 @@
 	$: if (!isManualViewBox) {
 		viewBox.set(scaledRect);
 	}
+
+	$: if ($activeItem) {
+		itemPositions.set(
+			{
+				[$activeItem.id]: {
+					x: offsetX,
+					y: offsetY
+				}
+			},
+			{ duration: 0 }
+		);
+	}
+
+	onMount(() => {
+		itemPositions.set(
+			items.reduce((acc, item) => {
+				return {
+					...acc,
+					[item.id]: {
+						x: item.position.x * gridScale,
+						y: item.position.y * gridScale
+					}
+				};
+			}, {} as Record<string, Position>),
+			{ duration: 0 }
+		);
+	});
 
 	$: {
 		// if there is an active item, bring it to the front
@@ -98,6 +132,12 @@
 						...item,
 						position: $mousePosition.grid
 					};
+					itemPositions.set({
+						[item.id]: {
+							x: $mousePosition.grid.x * gridScale,
+							y: $mousePosition.grid.y * gridScale
+						}
+					});
 					dispatchOnDragEnd(newItem);
 					return newItem;
 				}
@@ -188,8 +228,8 @@
 		{@const x = $activeItem?.id === item.id ? offsetX : item.position.x * gridScale}
 		{@const y = $activeItem?.id === item.id ? offsetY : item.position.y * gridScale}
 		<svg
-			{x}
-			{y}
+			x={$itemPositions[item.id]?.x ?? x}
+			y={$itemPositions[item.id]?.y ?? y}
 			width={item.size.width * gridScale}
 			height={item.size.height * gridScale}
 			in:fade={{ duration: 100 }}
