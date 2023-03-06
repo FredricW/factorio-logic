@@ -178,11 +178,6 @@
 		class="min-w-[1.5rem] text-center">{$hoverPosition?.y ?? '-'}</span
 	></span
 >
-<span class="badge fixed bottom-20 left-4 min-w-[4rem] opacity-70 hover:opacity-100"
-	><span class="min-w-[1.5rem] text-center">{scrollX ?? '-'}</span>,<span
-		class="min-w-[1.5rem] text-center">{scrollY ?? '-'}</span
-	></span
->
 <svg
 	bind:this={svg}
 	class="w-full h-full overflow-visible px-4 cursor-pointer"
