@@ -4,22 +4,16 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
-	import {
-		activeItem,
-		itemPosition,
-		startDragging,
-		startExternalDragging,
-		stopDragging,
-		updateDragging
-	} from './dragAndDrop';
+	import { activeItem, startDragging, startExternalDragging, stopDragging } from './dragAndDrop';
 	import { getOuterRect } from './getOuterRect';
-	import type { Rectangle, GridItem, Position } from './grid.types';
+	import type { Rectangle, GridItem, Position, DragStartEvent } from './grid.types';
 	import { scaleRect } from './scaleRect';
 	import {
 		domPositionToSVGPosition,
 		getPositionFromEvent,
 		positionToGridPosition
 	} from './positionUtils';
+	import { mousePosition, updateMousePosition } from './mousePosition';
 
 	// ================================================================================
 	// Props
@@ -53,6 +47,11 @@
 	// ================================================================================
 	// Sync
 	// ================================================================================
+
+	$: mouseX = $mousePosition?.svg.x ?? 0;
+	$: mouseY = $mousePosition?.svg.y ?? 0;
+	$: offsetX = mouseX - ($activeItem?.offset.x ?? 0);
+	$: offsetY = mouseY - ($activeItem?.offset.y ?? 0);
 
 	$: gridItems = items;
 	$: outerRect = getOuterRect(items, 2);
@@ -88,6 +87,26 @@
 		dispatch('dragend', updatedItem);
 	}
 
+	function handleDragEnd() {
+		if (!$activeItem) return;
+
+		// update the position of the item
+		items = items.map((item) => {
+			if (item.id === $activeItem?.id) {
+				if ($mousePosition) {
+					const newItem = {
+						...item,
+						position: $mousePosition.grid
+					};
+					dispatchOnDragEnd(newItem);
+					return newItem;
+				}
+			}
+			return item;
+		});
+		stopDragging();
+	}
+
 	// ================================================================================
 	// Helpers
 	// ================================================================================
@@ -105,77 +124,15 @@
 			duration: 0
 		});
 	}}
-	on:mousemove={updateDragging(svg)}
-	on:mouseup={() => {
-		hoverPosition.set(null);
-		const result = stopDragging();
-
-		if (!result) return;
-
-		// update the position of the item
-		items = items.map((item) => {
-			if (item.id === result.item.id) {
-				const gridOffset = {
-					x: Math.floor(result.item.offset.x / gridScale),
-					y: Math.floor(result.item.offset.y / gridScale)
-				};
-				const newPosition = {
-					x: Math.floor(result.position.x / gridScale) - gridOffset.x,
-					y: Math.floor(result.position.y / gridScale) - gridOffset.y
-				};
-
-				const newItem = {
-					...item,
-					position: newPosition
-				};
-
-				dispatchOnDragEnd(newItem);
-
-				return newItem;
-			}
-			return item;
-		});
-		stopDragging();
-	}}
-	on:touchmove={updateDragging(svg)}
-	on:touchend={() => {
-		hoverPosition.set(null);
-		if (!$activeItem) return;
-
-		const currentPosition = {
-			x: $itemPosition.x + $activeItem.offset.x,
-			y: $itemPosition.y + $activeItem.offset.y
-		};
-
-		items = items.map((item) => {
-			if (item.id === $activeItem?.id) {
-				const gridOffset = {
-					x: Math.floor($activeItem.offset.x / gridScale),
-					y: Math.floor($activeItem.offset.y / gridScale)
-				};
-				const newPosition = {
-					x: Math.floor(currentPosition.x / gridScale) - gridOffset.x,
-					y: Math.floor(currentPosition.y / gridScale) - gridOffset.y
-				};
-
-				const newItem = {
-					...item,
-					position: newPosition
-				};
-
-				dispatchOnDragEnd(newItem);
-
-				return newItem;
-			}
-			return item;
-		});
-		stopDragging();
-	}}
+	on:mousemove={updateMousePosition(svg, gridScale)}
+	on:mouseup={handleDragEnd}
+	on:touchmove={updateMousePosition(svg, gridScale)}
+	on:touchend={handleDragEnd}
 />
 
 <span class="badge fixed bottom-4 left-4 min-w-[4rem] opacity-70 hover:opacity-100"
-	><span class="min-w-[1.5rem] text-center">{$hoverPosition?.x ?? '-'}</span>,<span
-		class="min-w-[1.5rem] text-center">{$hoverPosition?.y ?? '-'}</span
+	><span class="min-w-[1.5rem] text-center">{$mousePosition?.grid.x ?? '-'}</span>,<span
+		class="min-w-[1.5rem] text-center">{$mousePosition?.grid.y ?? '-'}</span
 	></span
 >
 <svg
@@ -228,8 +185,8 @@
 		}}
 	/>
 	{#each gridItems as item (item.id)}
-		{@const x = $activeItem?.id === item.id ? $itemPosition.x : item.position.x * gridScale}
-		{@const y = $activeItem?.id === item.id ? $itemPosition.y : item.position.y * gridScale}
+		{@const x = $activeItem?.id === item.id ? offsetX : item.position.x * gridScale}
+		{@const y = $activeItem?.id === item.id ? offsetY : item.position.y * gridScale}
 		<svg
 			{x}
 			{y}
