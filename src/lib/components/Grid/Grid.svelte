@@ -126,27 +126,26 @@
 
 		// update the position of the item
 		items = items.map((item) => {
-			if (item.id === $activeItem?.id) {
-				if ($mousePosition) {
-					const newItem = {
-						...item,
-						position: $mousePosition.grid
-					};
-					itemPositions.set(
-						{
-							[item.id]: {
-								x: $mousePosition.grid.x * gridScale,
-								y: $mousePosition.grid.y * gridScale
-							}
-						},
-						{
-							soft: 0.3
-						}
-					);
-					dispatchOnDragEnd(newItem);
-					return newItem;
+			if (item.id !== $activeItem?.id || !$mousePosition) return item;
+
+			// animate the item to the new position
+			itemPositions.set(
+				{
+					[item.id]: {
+						x: $mousePosition.grid.x * gridScale,
+						y: $mousePosition.grid.y * gridScale
+					}
+				},
+				{
+					soft: 0.3
 				}
-			}
+			);
+
+			// dispatch the dragend event
+			item.position = $mousePosition.grid;
+			dispatchOnDragEnd(item);
+
+			// return the updated item
 			return item;
 		});
 		stopDragging();
