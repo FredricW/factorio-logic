@@ -77,8 +77,7 @@
 	let containerDiv: HTMLDivElement;
 	let borderRadius = '0.5rem';
 	onMount(() => {
-		const newRadius = getComputedStyle(containerDiv).getPropertyValue('--rounded-btn');
-		borderRadius = newRadius;
+		borderRadius = getComputedStyle(containerDiv).getPropertyValue('--rounded-btn');
 	});
 </script>
 
@@ -129,16 +128,21 @@
 			let:item
 			manualDragStart
 			let:dragStart
+			let:isActive
 			on:click={addComponent}
 		>
 			{#if item.data.entity === BlueprintEntity.Enum.constant_combinator}
+				{@const rectClasses = isActive
+					? 'stroke-base-content outline-accent'
+					: 'stroke-base-content/20'}
+				{@const textClasses = isActive ? 'fill-base-content' : 'fill-base-300'}
 				<g class="group">
 					<rect
 						x="5%"
 						y="5%"
 						width="90%"
 						height="90%"
-						class="fill-base-100 stroke-base-content/20 group-hover:stroke-base-content drop-shadow-lg focus:outline-accent rounded-btn overflow-hidden transition-all"
+						class="fill-base-100 drop-shadow-lg focus:outline-accent rounded-btn overflow-hidden transition-all {rectClasses}"
 						rx={borderRadius}
 						on:mouseenter={() => {
 							hoverMessage = item.data.entity;
@@ -166,7 +170,7 @@
 					<text
 						x="50%"
 						y="20%"
-						class="fill-base-300 text-center transition-all group-hover:fill-base-content group-focus:fill-base-content select-none pointer-events-none"
+						class="text-center transition-all group-hover:fill-base-content group-focus:fill-base-content select-none pointer-events-none {textClasses}"
 						dominant-baseline="middle"
 						text-anchor="middle"
 					>

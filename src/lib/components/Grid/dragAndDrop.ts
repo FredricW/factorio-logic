@@ -16,7 +16,9 @@ export const startDragging = (svg: SVGSVGElement, item: GridItem) => (event: Dra
 	activeItem.set({
 		id: item.id,
 		offset,
-		data: item.data
+		data: item.data,
+		originalPosition: item.position,
+		size: item.size
 	});
 };
 
@@ -32,7 +34,9 @@ export const startExternalDragging =
 		activeItem.set({
 			id: item.id,
 			offset,
-			data: item.data
+			data: item.data,
+			originalPosition: item.position,
+			size: item.size
 		});
 	};
 

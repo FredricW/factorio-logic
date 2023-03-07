@@ -3,13 +3,15 @@ export interface Position {
 	x: number;
 	y: number;
 }
+
+export interface Size {
+	width: number;
+	height: number;
+}
 export interface GridItem<T = unknown> {
 	id: string;
 	position: Position;
-	size: {
-		width: number;
-		height: number;
-	};
+	size: Size;
 	data: T;
 }
 
@@ -23,6 +25,8 @@ export interface Rectangle {
 export interface DraggableItem<T = unknown> {
 	id: string;
 	offset: Position;
+	originalPosition: Position;
+	size: Size;
 	data?: T;
 }
 

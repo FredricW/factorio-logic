@@ -6,7 +6,7 @@
 	import { fade } from 'svelte/transition';
 	import { activeItem, startDragging, startExternalDragging, stopDragging } from './dragAndDrop';
 	import { getOuterRect } from './getOuterRect';
-	import type { Rectangle, GridItem, Position, DragStartEvent } from './grid.types';
+	import type { Rectangle, GridItem, Position } from './grid.types';
 	import { scaleRect } from './scaleRect';
 	import {
 		domPositionToSVGPosition,
@@ -61,7 +61,7 @@
 	$: offsetY = mouseY - ($activeItem?.offset.y ?? 0);
 
 	$: gridItems = items;
-	$: outerRect = getOuterRect(items, 2);
+	let outerRect = getOuterRect(items, 2);
 	$: scaledRect = scaleRect(outerRect, gridScale);
 	$: if (!isManualViewBox) {
 		viewBox.set(scaledRect);
@@ -94,18 +94,6 @@
 		);
 	});
 
-	$: {
-		// if there is an active item, bring it to the front
-		if ($activeItem) {
-			const active = items.find((item) => item.id === $activeItem?.id);
-			if (active) {
-				const newGridItems = items.filter((item) => item.id !== active.id);
-				newGridItems.push(active);
-				gridItems = newGridItems;
-			}
-		}
-	}
-
 	// ================================================================================
 	// Events
 	// ================================================================================
@@ -122,30 +110,53 @@
 	}
 
 	function handleDragEnd() {
-		if (!$activeItem) return;
+		const active = $activeItem;
+		const mousePos = $mousePosition;
 
-		// update the position of the item
-		items = items.map((item) => {
-			if (item.id !== $activeItem?.id || !$mousePosition) return item;
+		if (!active || !mousePos) return;
 
-			// animate the item to the new position
+		const positionIsOccupied = items.some(
+			(item) =>
+				item.id !== active.id &&
+				item.position.x === mousePos.grid.x &&
+				item.position.y === mousePos.grid.y
+		);
+
+		if (positionIsOccupied) {
 			itemPositions.set(
 				{
-					[item.id]: {
-						x: $mousePosition.grid.x * gridScale,
-						y: $mousePosition.grid.y * gridScale
+					[active.id]: {
+						x: active.originalPosition.x * gridScale,
+						y: active.originalPosition.y * gridScale
 					}
 				},
 				{
 					soft: 0.3
 				}
 			);
+			stopDragging();
+			return;
+		}
 
-			// dispatch the dragend event
-			item.position = $mousePosition.grid;
+		// animate the item to the new position
+		itemPositions.set(
+			{
+				[active.id]: {
+					x: mousePos.grid.x * gridScale,
+					y: mousePos.grid.y * gridScale
+				}
+			},
+			{
+				soft: 0.3
+			}
+		);
+		items = items.map((item) => {
+			if (item.id !== active?.id || !mousePos) return item;
+
+			item.position = mousePos.grid;
+
 			dispatchOnDragEnd(item);
 
-			// return the updated item
 			return item;
 		});
 		stopDragging();
@@ -196,14 +207,14 @@
 		</pattern>
 	</defs>
 
-	{#if $hoverPosition}
-		{#key $hoverPosition.x + $hoverPosition.y}
+	{#if $activeItem && $mousePosition}
+		{#key $mousePosition.grid.x + $mousePosition.grid.y}
 			<rect
 				out:fade={{ duration: 50 }}
-				x={$hoverPosition.x * gridScale}
-				y={$hoverPosition.y * gridScale}
-				width={gridScale}
-				height={gridScale}
+				x={$mousePosition.grid.x * gridScale}
+				y={$mousePosition.grid.y * gridScale}
+				width={$activeItem.size.width * gridScale}
+				height={$activeItem.size.height * gridScale}
 				class="fill-base-300 stroke-base-300"
 			/>
 		{/key}
@@ -236,7 +247,6 @@
 			y={$itemPositions[item.id]?.y ?? y}
 			width={item.size.width * gridScale}
 			height={item.size.height * gridScale}
-			in:fade={{ duration: 100 }}
 			class="overflow-visible absolute touch-none"
 			id={item.id}
 			on:mousedown={(e) => {
@@ -255,6 +265,7 @@
 		>
 			<slot
 				{item}
+				isActive={$activeItem?.id === item.id}
 				dragStart={startExternalDragging(svg, item, {
 					x: item.position.x * gridScale,
 					y: item.position.y * gridScale
@@ -262,6 +273,9 @@
 			/>
 		</svg>
 	{/each}
+
+	<!-- This is a hack to bring the selected item to the front while it is active -->
+	<use xlink:href={`#${$activeItem?.id}`} />
 </svg>
 
 <style>
