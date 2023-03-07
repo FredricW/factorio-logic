@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { tweened } from 'svelte/motion';
+	import { spring, tweened } from 'svelte/motion';
 	import { cubicInOut } from 'svelte/easing';
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
@@ -43,11 +43,11 @@
 	);
 	let hoverPosition = writable<Position | null>(null);
 	let svg: SVGSVGElement;
-	let itemPositions = tweened<Record<string, Position>>(
+	let itemPositions = spring<Record<string, Position>>(
 		{},
 		{
-			duration: 150,
-			easing: cubicInOut
+			stiffness: 0.3,
+			damping: 0.6
 		}
 	);
 
@@ -75,7 +75,7 @@
 					y: offsetY
 				}
 			},
-			{ duration: 0 }
+			{ hard: true }
 		);
 	}
 
@@ -90,7 +90,7 @@
 					}
 				};
 			}, {} as Record<string, Position>),
-			{ duration: 0 }
+			{ hard: true }
 		);
 	});
 
@@ -132,12 +132,17 @@
 						...item,
 						position: $mousePosition.grid
 					};
-					itemPositions.set({
-						[item.id]: {
-							x: $mousePosition.grid.x * gridScale,
-							y: $mousePosition.grid.y * gridScale
+					itemPositions.set(
+						{
+							[item.id]: {
+								x: $mousePosition.grid.x * gridScale,
+								y: $mousePosition.grid.y * gridScale
+							}
+						},
+						{
+							soft: 0.3
 						}
-					});
+					);
 					dispatchOnDragEnd(newItem);
 					return newItem;
 				}
