@@ -129,11 +129,12 @@
 			manualDragStart
 			let:dragStart
 			let:isActive
+			let:isOccupied
 			on:click={addComponent}
 		>
 			{#if item.data.entity === BlueprintEntity.Enum.constant_combinator}
 				{@const rectClasses = isActive
-					? 'stroke-base-content outline-accent'
+					? `${isOccupied ? 'stroke-error' : 'stroke-base-content'}`
 					: 'stroke-base-content/20'}
 				{@const textClasses = isActive ? 'fill-base-content' : 'fill-base-300'}
 				<g class="group">
@@ -142,7 +143,7 @@
 						y="5%"
 						width="90%"
 						height="90%"
-						class="fill-base-100 drop-shadow-lg focus:outline-accent rounded-btn overflow-hidden transition-all {rectClasses}"
+						class="fill-base-100 outline-none drop-shadow-lg rounded-btn overflow-hidden transition-all {rectClasses}"
 						rx={borderRadius}
 						on:mouseenter={() => {
 							hoverMessage = item.data.entity;

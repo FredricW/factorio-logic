@@ -51,6 +51,8 @@
 		}
 	);
 
+	// Uesd as a z index hack for svg elements
+	let frontMostItemId = '';
 	// ================================================================================
 	// Sync
 	// ================================================================================
@@ -66,8 +68,10 @@
 	$: if (!isManualViewBox) {
 		viewBox.set(scaledRect);
 	}
+	$: itemAtPosition = $mousePosition ? getItemAtPosition($mousePosition.grid) : null;
 
 	$: if ($activeItem) {
+		frontMostItemId = $activeItem.id;
 		itemPositions.set(
 			{
 				[$activeItem.id]: {
@@ -109,47 +113,56 @@
 		dispatch('dragend', updatedItem);
 	}
 
+	function getItemAtPosition(position: Position) {
+		return items.find((item) => item.position.x === position.x && item.position.y === position.y);
+	}
+
 	function handleDragEnd() {
 		const active = $activeItem;
 		const mousePos = $mousePosition;
 
 		if (!active || !mousePos) return;
 
-		const positionIsOccupied = items.some(
-			(item) =>
-				item.id !== active.id &&
-				item.position.x === mousePos.grid.x &&
-				item.position.y === mousePos.grid.y
-		);
+		const positionIsOccupied = itemAtPosition && itemAtPosition.id !== active.id;
 
 		if (positionIsOccupied) {
-			itemPositions.set(
-				{
-					[active.id]: {
-						x: active.originalPosition.x * gridScale,
-						y: active.originalPosition.y * gridScale
+			itemPositions
+				.set(
+					{
+						[active.id]: {
+							x: active.originalPosition.x * gridScale,
+							y: active.originalPosition.y * gridScale
+						}
+					},
+					{
+						soft: 0.3
 					}
-				},
-				{
-					soft: 0.3
-				}
-			);
+				)
+				.then(() => {
+					// unassign the front most item hack so that hover events work correctly again
+					frontMostItemId = '';
+				});
 			stopDragging();
 			return;
 		}
 
 		// animate the item to the new position
-		itemPositions.set(
-			{
-				[active.id]: {
-					x: mousePos.grid.x * gridScale,
-					y: mousePos.grid.y * gridScale
+		itemPositions
+			.set(
+				{
+					[active.id]: {
+						x: mousePos.grid.x * gridScale,
+						y: mousePos.grid.y * gridScale
+					}
+				},
+				{
+					soft: 0.3
 				}
-			},
-			{
-				soft: 0.3
-			}
-		);
+			)
+			.then(() => {
+				// unassign the front most item hack so that hover events work correctly again
+				frontMostItemId = '';
+			});
 		items = items.map((item) => {
 			if (item.id !== active?.id || !mousePos) return item;
 
@@ -208,11 +221,15 @@
 	</defs>
 
 	{#if $activeItem && $mousePosition}
+		{@const x =
+			(itemAtPosition ? $activeItem.originalPosition.x : $mousePosition.grid.x) * gridScale}
+		{@const y =
+			(itemAtPosition ? $activeItem.originalPosition.y : $mousePosition.grid.y) * gridScale}
 		{#key $mousePosition.grid.x + $mousePosition.grid.y}
 			<rect
 				out:fade={{ duration: 50 }}
-				x={$mousePosition.grid.x * gridScale}
-				y={$mousePosition.grid.y * gridScale}
+				{x}
+				{y}
 				width={$activeItem.size.width * gridScale}
 				height={$activeItem.size.height * gridScale}
 				class="fill-base-300 stroke-base-300"
@@ -266,6 +283,7 @@
 			<slot
 				{item}
 				isActive={$activeItem?.id === item.id}
+				isOccupied={itemAtPosition && itemAtPosition.id !== item.id}
 				dragStart={startExternalDragging(svg, item, {
 					x: item.position.x * gridScale,
 					y: item.position.y * gridScale
@@ -275,7 +293,7 @@
 	{/each}
 
 	<!-- This is a hack to bring the selected item to the front while it is active -->
-	<use xlink:href={`#${$activeItem?.id}`} />
+	<use xlink:href="#{frontMostItemId}" />
 </svg>
 
 <style>
