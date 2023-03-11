@@ -12,7 +12,7 @@ export const PUT: RequestHandler = async ({ params, locals, request }) => {
 			description: requestData.description,
 			is_public: requestData.is_public,
 			data: requestData.data,
-			history: requestData.history
+			history: [] // skip history for now
 		});
 
 		locals.sb
