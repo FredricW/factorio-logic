@@ -14,6 +14,7 @@
 		positionToGridPosition
 	} from './positionUtils';
 	import { mousePosition, updateMousePosition } from './mousePosition';
+	import Rope from '../Rope.svelte';
 
 	// ================================================================================
 	// Props
@@ -50,6 +51,8 @@
 			damping: 0.6
 		}
 	);
+	let drawRope = false;
+	let ropeStart: Position | null = null;
 
 	// Uesd as a z index hack for svg elements
 	let frontMostItemId = '';
@@ -117,9 +120,18 @@
 		return items.find((item) => item.position.x === position.x && item.position.y === position.y);
 	}
 
+	function startRopeDragging(e: MouseEvent) {
+		e.preventDefault();
+		drawRope = true;
+		ropeStart = $mousePosition?.svg ?? null;
+	}
+
 	function handleDragEnd() {
 		const active = $activeItem;
 		const mousePos = $mousePosition;
+
+		drawRope = false;
+		ropeStart = null;
 
 		if (!active || !mousePos) return;
 
@@ -282,6 +294,7 @@
 		>
 			<slot
 				{item}
+				{startRopeDragging}
 				isActive={$activeItem?.id === item.id}
 				isOccupied={itemAtPosition && itemAtPosition.id !== item.id}
 				dragStart={startExternalDragging(svg, item, {
@@ -291,6 +304,9 @@
 			/>
 		</svg>
 	{/each}
+	{#if drawRope && ropeStart}
+		<Rope start={ropeStart} end={$mousePosition?.svg ?? { x: 0, y: 0 }} />
+	{/if}
 
 	<!-- This is a hack to bring the selected item to the front while it is active -->
 	<use xlink:href="#{frontMostItemId}" />

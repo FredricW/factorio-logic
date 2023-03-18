@@ -131,6 +131,7 @@
 			let:isActive
 			let:isOccupied
 			on:click={addComponent}
+			let:startRopeDragging
 		>
 			{#if item.data.entity === BlueprintEntity.Enum.constant_combinator}
 				{@const rectClasses = isActive
@@ -183,15 +184,16 @@
 							cy="75%"
 							r="10%"
 							class="stroke-base-300 stroke-2 fill-base-100 transition-all group-hover:stroke-success select-none"
-							on:mousedown={(e) => {
-								e.stopPropagation();
-							}}
 						/>
 						<circle
 							cx="25%"
 							cy="75%"
 							r="5%"
 							class="fill-base-100 group-hover/green:fill-success transition-all"
+							on:mousedown={(e) => {
+								e.stopPropagation();
+								startRopeDragging(e);
+							}}
 						/>
 					</g>
 					<g class="group/red">
@@ -200,15 +202,16 @@
 							cy="75%"
 							r="10%"
 							class="stroke-base-300 stroke-2 fill-base-100 transition-all group-hover:stroke-error select-none"
-							on:mousedown={(e) => {
-								e.stopPropagation();
-							}}
 						/>
 						<circle
 							cx="75%"
 							cy="75%"
 							r="5%"
 							class="fill-base-100 group-hover/red:fill-error transition-all"
+							on:mousedown={(e) => {
+								e.stopPropagation();
+								startRopeDragging(e);
+							}}
 						/>
 					</g>
 				</g>
