@@ -1,32 +1,26 @@
 <!-- Rope.svelte -->
 <script lang="ts">
-	// Replace this with your actual import statement
-	// import { Position } from "$lib/types/blueprint";
-	type Position = {
-		x: number;
-		y: number;
-	};
+	import { onMount } from 'svelte';
 
-	export let start: Position;
-	export let end: Position;
+	export let start: { x: number; y: number };
+	export let end: { x: number; y: number };
 
-	let ropePath: SVGPathElement;
+	let path: SVGPathElement;
 
-	$: {
-		if (ropePath) {
-			drawRope(start, end);
-		}
-	}
+	onMount(() => {
+		const updatePath = () => {
+			const controlPointX = (start.x + end.x) / 2;
+			const controlPointY = Math.max(start.y, end.y) + Math.abs(start.x - end.x) / 2;
+			path.setAttribute(
+				'd',
+				`M${start.x} ${start.y} Q${controlPointX} ${controlPointY}, ${end.x} ${end.y}`
+			);
 
-	function drawRope(start: Position, end: Position): void {
-		const controlPoint = {
-			x: (start.x + end.x) / 2,
-			y: Math.max(start.y, end.y) + Math.abs(start.x - end.x) / 4
+			requestAnimationFrame(updatePath);
 		};
 
-		const pathData = `M ${start.x} ${start.y} Q ${controlPoint.x} ${controlPoint.y} ${end.x} ${end.y}`;
-		ropePath.setAttribute('d', pathData);
-	}
+		updatePath();
+	});
 </script>
 
-<path bind:this={ropePath} stroke="white" fill="none" stroke-width="2" />
+<path bind:this={path} stroke="white" fill="none" />
