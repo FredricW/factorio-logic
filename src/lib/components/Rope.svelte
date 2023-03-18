@@ -1,26 +1,105 @@
 <!-- Rope.svelte -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import Matter from 'matter-js';
 
 	export let start: { x: number; y: number };
 	export let end: { x: number; y: number };
+	export let segments = 16;
 
-	let path: SVGPathElement;
+	let pathData = '';
+	let engine: Matter.Engine;
+	let intervalId: any;
+	let ropeBodies: Matter.Body[];
+
+	let startBody: Matter.Body;
+	let endBody: Matter.Body;
 
 	onMount(() => {
-		const updatePath = () => {
-			const controlPointX = (start.x + end.x) / 2;
-			const controlPointY = Math.max(start.y, end.y) + Math.abs(start.x - end.x) / 2;
-			path.setAttribute(
-				'd',
-				`M${start.x} ${start.y} Q${controlPointX} ${controlPointY}, ${end.x} ${end.y}`
-			);
+		// Create a Matter.js engine
+		engine = Matter.Engine.create();
 
-			requestAnimationFrame(updatePath);
+		// Create the rope
+		createRope(start, end, segments);
+
+		// Custom runner using setInterval
+		const update = () => {
+			Matter.Engine.update(engine, 1000 / 60);
 		};
 
-		updatePath();
+		intervalId = setInterval(update, 1000 / 60);
+
+		// Render the rope
+		const updateRope = () => {
+			pathData = [startBody, ...ropeBodies, endBody]
+				.map((body, index) => {
+					const command = index === 0 ? 'M' : 'L';
+					return `${command}${body.position.x},${body.position.y}`;
+				})
+				.join(' ');
+
+			requestAnimationFrame(updateRope);
+		};
+
+		updateRope();
 	});
+
+	onDestroy(() => {
+		clearInterval(intervalId);
+	});
+
+	function createRope(
+		start: { x: number; y: number },
+		end: { x: number; y: number },
+		segments: number
+	): void {
+		const ropeLength = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+		const segmentLength = ropeLength / segments;
+
+		// Create a static body for each end of the rope
+		startBody = Matter.Bodies.circle(start.x, start.y, 1, { isStatic: true });
+		endBody = Matter.Bodies.circle(end.x, end.y, 1, { isStatic: true });
+
+		// Create the rope bodies
+		ropeBodies = Array.from({ length: segments }, (_, i) => {
+			const x = start.x + ((end.x - start.x) / segments) * i;
+			const y = start.y + ((end.y - start.y) / segments) * i;
+			return Matter.Bodies.circle(x, y, 1);
+		});
+
+		// Connect the rope bodies with constraints
+		const constraints = ropeBodies.map((body, i) => {
+			const prevBody = i === 0 ? startBody : ropeBodies[i - 1];
+			return Matter.Constraint.create({
+				bodyA: prevBody,
+				bodyB: body,
+				length: segmentLength,
+				stiffness: 0.8
+			});
+		});
+
+		// Connect the last rope body to the end body
+		constraints.push(
+			Matter.Constraint.create({
+				bodyA: ropeBodies[ropeBodies.length - 1],
+				bodyB: endBody,
+				length: segmentLength,
+				stiffness: 0.8
+			})
+		);
+
+		// Add all bodies and constraints to the engine
+		Matter.World.add(engine.world, [startBody, endBody, ...ropeBodies, ...constraints]);
+	}
+	$: {
+		if (engine) {
+			// Update the startBody position
+			Matter.Body.setPosition(startBody, start);
+
+			// Update the endBody position
+			Matter.Body.setPosition(endBody, end);
+		}
+	}
 </script>
 
-<path bind:this={path} stroke="white" fill="none" />
+<path d={pathData} stroke="white" fill="none" stroke-width={2} />

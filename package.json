@@ -20,6 +20,7 @@
 		"@sveltejs/adapter-node": "^1.2.0",
 		"@sveltejs/kit": "^1.7.0",
 		"@tailwindcss/typography": "^0.5.9",
+		"@types/matter-js": "^0.18.2",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"autoprefixer": "^10.4.13",
@@ -44,6 +45,7 @@
 		"daisyui": "^2.50.0",
 		"deep-object-diff": "^1.1.9",
 		"factorio-blueprint": "^2.5.0",
+		"matter-js": "^0.19.0",
 		"zod": "^3.20.6"
 	}
 }
