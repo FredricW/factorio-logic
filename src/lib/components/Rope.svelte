@@ -1,33 +1,22 @@
 <!-- Rope.svelte -->
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import Matter from 'matter-js';
+	import { matterEngine } from '../matter';
 
 	export let start: { x: number; y: number };
 	export let end: { x: number; y: number };
 	export let segments = 16;
 
 	let pathData = '';
-	let engine: Matter.Engine;
-	let intervalId: any;
 	let ropeBodies: Matter.Body[];
 
 	let startBody: Matter.Body;
 	let endBody: Matter.Body;
 
 	onMount(() => {
-		// Create a Matter.js engine
-		engine = Matter.Engine.create();
-
 		// Create the rope
 		createRope(start, end, segments);
-
-		// Custom runner using setInterval
-		const update = () => {
-			Matter.Engine.update(engine, 1000 / 60);
-		};
-
-		intervalId = setInterval(update, 1000 / 60);
 
 		// Render the rope
 		const updateRope = () => {
@@ -44,15 +33,13 @@
 		updateRope();
 	});
 
-	onDestroy(() => {
-		clearInterval(intervalId);
-	});
-
 	function createRope(
 		start: { x: number; y: number },
 		end: { x: number; y: number },
 		segments: number
 	): void {
+		if (!$matterEngine) return;
+
 		const ropeLength = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
 		const segmentLength = ropeLength / segments;
 
@@ -74,7 +61,8 @@
 				bodyA: prevBody,
 				bodyB: body,
 				length: segmentLength,
-				stiffness: 0.8
+				stiffness: 0.8,
+				damping: 0.1
 			});
 		});
 
@@ -84,21 +72,20 @@
 				bodyA: ropeBodies[ropeBodies.length - 1],
 				bodyB: endBody,
 				length: segmentLength,
-				stiffness: 0.8
+				stiffness: 0.8,
+				damping: 0.1
 			})
 		);
 
 		// Add all bodies and constraints to the engine
-		Matter.World.add(engine.world, [startBody, endBody, ...ropeBodies, ...constraints]);
+		Matter.World.add($matterEngine.world, [startBody, endBody, ...ropeBodies, ...constraints]);
 	}
-	$: {
-		if (engine) {
-			// Update the startBody position
-			Matter.Body.setPosition(startBody, start);
+	$: if ($matterEngine && startBody && endBody) {
+		// Update the startBody position
+		Matter.Body.setPosition(startBody, start);
 
-			// Update the endBody position
-			Matter.Body.setPosition(endBody, end);
-		}
+		// Update the endBody position
+		Matter.Body.setPosition(endBody, end);
 	}
 </script>
 

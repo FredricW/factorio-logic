@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 	import { spring, tweened } from 'svelte/motion';
 	import { cubicInOut } from 'svelte/easing';
 	import { writable } from 'svelte/store';
@@ -15,6 +15,8 @@
 	} from './positionUtils';
 	import { mousePosition, updateMousePosition } from './mousePosition';
 	import Rope from '../Rope.svelte';
+	import Matter from 'matter-js';
+	import { matterEngine } from '$lib/matter';
 
 	// ================================================================================
 	// Props
@@ -53,6 +55,7 @@
 	);
 	let drawRope = false;
 	let ropeStart: Position | null = null;
+	let matterInterval: any = null;
 
 	// Uesd as a z index hack for svg elements
 	let frontMostItemId = '';
@@ -87,6 +90,16 @@
 	}
 
 	onMount(() => {
+		if (!$matterEngine) {
+			matterEngine.set(Matter.Engine.create());
+		}
+		// Custom runner using setInterval
+		const update = () => {
+			if ($matterEngine) Matter.Engine.update($matterEngine, 1000 / 60);
+		};
+
+		matterInterval = setInterval(update, 1000 / 60);
+
 		itemPositions.set(
 			items.reduce((acc, item) => {
 				return {
@@ -99,6 +112,11 @@
 			}, {} as Record<string, Position>),
 			{ hard: true }
 		);
+	});
+
+	onDestroy(() => {
+		clearInterval(matterInterval);
+		$matterEngine && Matter.Engine.clear($matterEngine);
 	});
 
 	// ================================================================================
