@@ -32,12 +32,12 @@ export const blueprintItemSchema = z.object({
 
 export type BlueprintItem = z.infer<typeof blueprintItemSchema>;
 
-export const blueprintDataSchema = z.object({
-	items: z.array(blueprintItemSchema),
-	tiles: z.array(tileSchema)
-});
+// export const blueprintDataSchema = z.object({
+// 	items: z.array(blueprintItemSchema),
+// 	tiles: z.array(tileSchema)
+// });
 
-export type BlueprintData = z.infer<typeof blueprintDataSchema>;
+// export type BlueprintData = z.infer<typeof blueprintDataSchema>;
 
 export const historySnapshotSchema = z.object({
 	id: z.string().uuid(),
@@ -57,7 +57,7 @@ export const blueprintModuleSchema = z.object({
 	description: z.string().optional().nullable(),
 	is_public: z.boolean(),
 	collaborators: z.array(z.string().uuid()),
-	data: blueprintDataSchema,
+	data: z.string(),
 	history: z.array(historySnapshotSchema)
 });
 

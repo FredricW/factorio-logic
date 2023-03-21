@@ -1,32 +1,37 @@
 <script lang="ts">
-	import { createBlueprintItem, deleteBlueprintItem, updateBlueprintData } from '$lib/blueprint';
 	import Grid from '$lib/components/Grid/Grid.svelte';
-	import type { BlueprintItem, BlueprintModule, Position } from '$lib/types/blueprint';
+	import type { BlueprintModule, Position } from '$lib/types/blueprint';
 	import type { PageData } from './$types';
 	import type { GridItem } from '$lib/components/Grid/grid.types';
 	import { BlueprintEntity } from '$lib/blueprintEntities';
 	import { onMount } from 'svelte';
 	import History from '$lib/components/History.svelte';
+	import Blueprint from 'factorio-blueprint';
+	import type Entity from 'factorio-blueprint/dist/src/entity';
+	import Victor from 'victor';
 
 	export let data: PageData;
 
 	let blueprintModule = data.blueprint as BlueprintModule;
+	const bp = new Blueprint(data.blueprint?.data);
 
-	$: items = blueprintModule?.data.items ?? [];
+	let items = bp.entities ?? [];
 	$: gridItems = items.map((item) => {
 		return {
-			id: item.id,
-			position: item.position,
+			id: crypto.randomUUID(),
+			position: item.getData().position,
 			size: {
-				width: 1,
-				height: 1
+				width: item.size.x,
+				height: item.size.y
 			},
 			data: item
-		} as GridItem<BlueprintItem>;
+		} as GridItem<Entity>;
 	});
 
 	const syncBlueprint = () => {
 		if (!blueprintModule) return;
+
+		blueprintModule.data = bp.encode();
 
 		fetch(`/blueprints/${blueprintModule.id}`, {
 			method: 'PUT',
@@ -39,34 +44,37 @@
 		});
 	};
 
-	const moveItem = (event: CustomEvent<GridItem<BlueprintItem>>) => {
+	const moveItem = (event: CustomEvent<GridItem<Entity>>) => {
 		if (!blueprintModule) return;
+		const entity = bp.removeEntity(event.detail.data);
+		if (!entity) return;
 
-		blueprintModule = updateBlueprintData(blueprintModule, {
-			items: items.map((item) => {
-				if (item.id === event.detail.id) {
-					return {
-						...item,
-						position: {
-							x: event.detail.position.x,
-							y: event.detail.position.y
-						}
-					};
-				}
-
-				return item;
-			})
-		});
+		bp.createEntityWithData(
+			{
+				...entity,
+				position: new Victor(event.detail.position.x, event.detail.position.y)
+			},
+			false,
+			false,
+			false
+		);
 		syncBlueprint();
 	};
 
 	const addComponent = (event: CustomEvent<{ x: number; y: number }>) => {
 		if (!blueprintModule) return;
 
-		blueprintModule = createBlueprintItem(blueprintModule, 'constant_combinator', {
-			x: event.detail.x,
-			y: event.detail.y
-		});
+		bp.createEntityWithData(
+			{
+				name: 'constant_combinator',
+				position: new Victor(event.detail.x, event.detail.y)
+			},
+			false,
+			false,
+			false
+		);
+		items = bp.entities;
+
 		syncBlueprint();
 	};
 	let mousePosition: Position | null = null;
@@ -133,7 +141,7 @@
 			on:click={addComponent}
 			let:startRopeDragging
 		>
-			{#if item.data.entity === BlueprintEntity.Enum.constant_combinator}
+			{#if item.data.name === BlueprintEntity.Enum.constant_combinator}
 				{@const rectClasses = isActive
 					? `${isOccupied ? 'stroke-error' : 'stroke-base-content'}`
 					: 'stroke-base-content/20'}
@@ -147,7 +155,7 @@
 						class="fill-base-100 outline-none drop-shadow-lg rounded-btn overflow-hidden transition-all {rectClasses}"
 						rx={borderRadius}
 						on:mouseenter={() => {
-							hoverMessage = item.data.entity;
+							hoverMessage = item.data.name;
 						}}
 						on:mousedown={(e) => {
 							dragStart(e);
@@ -164,7 +172,8 @@
 							if (e.key === 'Backspace') {
 								if (!blueprintModule) return;
 
-								blueprintModule = deleteBlueprintItem(blueprintModule, item.id);
+								bp.removeEntity(item.data);
+								items = bp.entities;
 								syncBlueprint();
 							}
 						}}
