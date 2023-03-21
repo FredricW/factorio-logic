@@ -46,18 +46,7 @@
 
 	const moveItem = (event: CustomEvent<GridItem<Entity>>) => {
 		if (!blueprintModule) return;
-		const entity = bp.removeEntity(event.detail.data);
-		if (!entity) return;
-
-		bp.createEntityWithData(
-			{
-				...entity,
-				position: new Victor(event.detail.position.x, event.detail.position.y)
-			},
-			false,
-			false,
-			false
-		);
+		event.detail.data.position = new Victor(event.detail.position.x, event.detail.position.y);
 		syncBlueprint();
 	};
 
