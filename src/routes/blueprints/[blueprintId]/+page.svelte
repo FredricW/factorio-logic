@@ -50,12 +50,31 @@
 		syncBlueprint();
 	};
 
+	const entityOptions = [
+		{
+			name: 'constant_combinator',
+			displayName: 'Constant'
+		},
+		{
+			name: 'decider_combinator',
+			displayName: 'Decider'
+		},
+		{
+			name: 'arithmetic_combinator',
+			displayName: 'Arithmetic'
+		}
+	];
+	let entityName = 'constant_combinator';
+	function setEntityName(name: string) {
+		entityName = name;
+	}
+
 	const addComponent = (event: CustomEvent<{ x: number; y: number }>) => {
 		if (!blueprintModule) return;
 
 		bp.createEntityWithData(
 			{
-				name: 'constant_combinator',
+				name: entityName,
 				position: new Victor(event.detail.x, event.detail.y)
 			},
 			false,
@@ -130,90 +149,90 @@
 			on:click={addComponent}
 			let:startRopeDragging
 		>
-			{#if item.data.name === BlueprintEntity.Enum.constant_combinator}
-				{@const rectClasses = isActive
-					? `${isOccupied ? 'stroke-error' : 'stroke-base-content'}`
-					: 'stroke-base-content/20'}
-				{@const textClasses = isActive ? 'fill-base-content' : 'fill-base-300'}
-				<g class="group">
-					<rect
-						x="5%"
-						y="5%"
-						width="90%"
-						height="90%"
-						class="fill-base-100 outline-none drop-shadow-lg rounded-btn overflow-hidden transition-all {rectClasses}"
-						rx={borderRadius}
-						on:mouseenter={() => {
-							hoverMessage = item.data.name;
-						}}
-						on:mousedown={(e) => {
-							dragStart(e);
-						}}
-						on:mouseleave={(e) => {
-							mousePosition = null;
-							hoverMessage = null;
-						}}
-						on:focus={(e) => {
-							// console.log(e);
-						}}
-						on:keydown={(e) => {
-							// delete item on backspace
-							if (e.key === 'Backspace') {
-								if (!blueprintModule) return;
+			<!-- {#if item.data.name === BlueprintEntity.Enum.constant_combinator} -->
+			{@const rectClasses = isActive
+				? `${isOccupied ? 'stroke-error' : 'stroke-base-content'}`
+				: 'stroke-base-content/20'}
+			{@const textClasses = isActive ? 'fill-base-content' : 'fill-base-300'}
+			<g class="group">
+				<rect
+					x="5%"
+					y="5%"
+					width="90%"
+					height="90%"
+					class="fill-base-100 outline-none drop-shadow-lg rounded-btn overflow-hidden transition-all {rectClasses}"
+					rx={borderRadius}
+					on:mouseenter={() => {
+						hoverMessage = item.data.name;
+					}}
+					on:mousedown={(e) => {
+						dragStart(e);
+					}}
+					on:mouseleave={(e) => {
+						mousePosition = null;
+						hoverMessage = null;
+					}}
+					on:focus={(e) => {
+						// console.log(e);
+					}}
+					on:keydown={(e) => {
+						// delete item on backspace
+						if (e.key === 'Backspace') {
+							if (!blueprintModule) return;
 
-								bp.removeEntity(item.data);
-								items = bp.entities;
-								syncBlueprint();
-							}
+							bp.removeEntity(item.data);
+							items = bp.entities;
+							syncBlueprint();
+						}
+					}}
+				/>
+				<text
+					x="50%"
+					y="20%"
+					class="text-center transition-all group-hover:fill-base-content group-focus:fill-base-content select-none pointer-events-none {textClasses}"
+					dominant-baseline="middle"
+					text-anchor="middle"
+				>
+					CONSTANT
+				</text>
+				<g class="group/green">
+					<circle
+						cx="25%"
+						cy="75%"
+						r="10%"
+						class="stroke-base-300 stroke-2 fill-base-100 transition-all group-hover:stroke-success select-none"
+					/>
+					<circle
+						cx="25%"
+						cy="75%"
+						r="5%"
+						class="fill-base-100 group-hover/green:fill-success transition-all"
+						on:mousedown={(e) => {
+							e.stopPropagation();
+							startRopeDragging(e);
 						}}
 					/>
-					<text
-						x="50%"
-						y="20%"
-						class="text-center transition-all group-hover:fill-base-content group-focus:fill-base-content select-none pointer-events-none {textClasses}"
-						dominant-baseline="middle"
-						text-anchor="middle"
-					>
-						CONSTANT
-					</text>
-					<g class="group/green">
-						<circle
-							cx="25%"
-							cy="75%"
-							r="10%"
-							class="stroke-base-300 stroke-2 fill-base-100 transition-all group-hover:stroke-success select-none"
-						/>
-						<circle
-							cx="25%"
-							cy="75%"
-							r="5%"
-							class="fill-base-100 group-hover/green:fill-success transition-all"
-							on:mousedown={(e) => {
-								e.stopPropagation();
-								startRopeDragging(e);
-							}}
-						/>
-					</g>
-					<g class="group/red">
-						<circle
-							cx="75%"
-							cy="75%"
-							r="10%"
-							class="stroke-base-300 stroke-2 fill-base-100 transition-all group-hover:stroke-error select-none"
-						/>
-						<circle
-							cx="75%"
-							cy="75%"
-							r="5%"
-							class="fill-base-100 group-hover/red:fill-error transition-all"
-							on:mousedown={(e) => {
-								e.stopPropagation();
-								startRopeDragging(e);
-							}}
-						/>
-					</g>
 				</g>
-			{/if}
+				<g class="group/red">
+					<circle
+						cx="75%"
+						cy="75%"
+						r="10%"
+						class="stroke-base-300 stroke-2 fill-base-100 transition-all group-hover:stroke-error select-none"
+					/>
+					<circle
+						cx="75%"
+						cy="75%"
+						r="5%"
+						class="fill-base-100 group-hover/red:fill-error transition-all"
+						on:mousedown={(e) => {
+							e.stopPropagation();
+							startRopeDragging(e);
+						}}
+					/>
+				</g>
+			</g>
+			<!-- {/if} -->
 		</Grid>
 	</div>
 </div>
@@ -221,6 +240,19 @@
 {#if enableHistory}
 	<History {blueprintModule} />
 {/if}
+
+<div class="fixed flex flex-col left-4 top-0 justify-center h-screen pointer-events-none">
+	<ul class="menu menu-compact bg-base-100 w-auto p-2 rounded-box pointer-events-auto">
+		{#each entityOptions as option}
+			<li>
+				<button
+					class:active={entityName === option.name}
+					on:click={() => setEntityName(option.name)}>{option.displayName}</button
+				>
+			</li>
+		{/each}
+	</ul>
+</div>
 
 <!-- {#if mousePosition && hoverMessage}
 	<div
